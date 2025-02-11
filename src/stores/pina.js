@@ -81,7 +81,7 @@ export const useAuthStore = defineStore('auth', {
       removeAuthorization();
       toast.info("Đang chuyển sang trang đăng nhập")
       setTimeout(() => {
-        router.replace('/login')
+        router.replace('/company/login')
       }, 2000);
     }
   },

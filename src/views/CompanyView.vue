@@ -9,14 +9,14 @@
           >
             <img
               :src="
-                this.userInfo.imageURL ||
+                this.userInfo.logoURL ||
                 `https://res.cloudinary.com/dtza0pk4w/image/upload/v1734758873/default_avatar.jpg`
               "
               alt="User Avatar"
               class="avatar"
             />
             <div class="ms-3">
-              <p class="user-name">{{ userInfo.userName }}</p>
+              <p class="user-name">{{ userInfo.companyName || this.email }}</p>
               <p class="user-role" v-if="role">Vai trò: {{ role }}</p>
             </div>
           </div>
@@ -55,6 +55,7 @@ export default {
   data() {
     return {
       userInfo: {},
+      email: "",
     };
   },
   computed: {
@@ -68,19 +69,19 @@ export default {
       return [
         {
           name: "Thông Tin Tài Khoản",
-          path: "/users/profile",
+          path: "/company/profile",
           iconPath:
             "M8 3.5a.5.5 0 0 1 .5.5v4h3.5a.5.5 0 0 1 0 1H8a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zM1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8z",
         },
         {
           name: "Vé Đã Mua",
-          path: "/users/tickets",
+          path: "/company/tickets",
           iconPath:
             "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
         },
         {
           name: "Quản Lý Công Việc",
-          path: "/user/all-request",
+          path: "/company/all-request",
           iconPath:
             "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
         },
@@ -90,14 +91,23 @@ export default {
   methods: {
     async fetchUserInfo() {
       try {
-        const res = await api.get(`/users/${this.user.id}`);
+        const res = await api.get(`/companies/${this.user.id}`);
         console.log(res.data);
         this.userInfo = res.data.data;
+        this.email = sessionStorage.getItem("email");
       } catch (error) {
-        this.$toast.error(
-          error.response?.data?.message ||
-            "Đã xảy ra lỗi khi tải thông tin người dùng"
-        );
+        if (error.response?.status === 404) {
+          this.$toast.error("Chưa có thông tin công ty, hãy tạo mới!");
+          this.$router.push({
+            name: "CreateCompany",
+            query: { accountId: this.user.id },
+          });
+        } else {
+          this.$toast.error(
+            error.response?.data?.message ||
+              "Đã xảy ra lỗi khi tải thông tin người dùng"
+          );
+        }
       }
     },
   },

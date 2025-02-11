@@ -222,7 +222,7 @@
       </div>
 
       <!-- Công ty tổ chức -->
-      <div class="mb-3">
+      <!-- <div class="mb-3">
         <label for="eventCompanyId" class="form-label"
           >Công ty đại diện tổ chức</label
         >
@@ -236,7 +236,7 @@
             {{ company.companyName }}
           </option>
         </select>
-      </div>
+      </div> -->
 
       <!-- Chọn Poster -->
       <div class="mb-3">
@@ -331,7 +331,7 @@ export default {
         eventCapacity: 0,
         eventStatus: "",
         eventListArtist: [],
-        eventCompanyId: "",
+        eventCompanyId: sessionStorage.getItem("email") || "Company",
         eventPrice: 0,
         eventListImgURL: [],
       },
@@ -369,6 +369,9 @@ export default {
   },
 
   computed: {
+    user() {
+      return this.$authStore.user;
+    },
     isFormValid() {
       // Kiểm tra tất cả các lỗi trong object errors, nếu có lỗi thì form không hợp lệ
       return Object.values(this.errors).every((error) => error === "");
@@ -387,14 +390,6 @@ export default {
     },
   },
   methods: {
-    async fetchCompanies() {
-      try {
-        const response = await api.get("/companies/get-all");
-        this.companies = response.data.data;
-      } catch (error) {
-        this.$toast.error(error.response?.data?.message || "Đã xảy ra lỗi");
-      }
-    },
     addArtist() {
       if (this.event.newArtistName.trim() !== "") {
         this.event.eventListArtist.push(this.event.newArtistName.trim());
@@ -438,7 +433,7 @@ export default {
 
       this.event.eventDuration =
         this.eventDurationInput * (this.eventDurationType === "hours" ? 1 : 24);
-
+      this.event.eventCompanyId = this.user.id;
       const newEvent = {
         ...this.event, // Sao chép tất cả thuộc tính từ this.event
       };
@@ -573,10 +568,6 @@ export default {
         this.errors.eventPrice = "";
       }
     },
-  },
-
-  mounted() {
-    this.fetchCompanies();
   },
 };
 </script>

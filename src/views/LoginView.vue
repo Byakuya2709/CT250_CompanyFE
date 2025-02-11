@@ -1,50 +1,50 @@
 <template>
   <div class="login-container" style="flex-direction: column">
     <div class="register-box">
-    <h2>Đăng Nhập</h2>
-    <form @submit.prevent="handleLogin">
-      <!-- Email -->
-      <div class="form-group">
-        <input
-          type="email"
-          v-model="email"
-          placeholder="Nhập email"
-          :disabled="isLocked"
-          @input="validateEmail"
-        />
-        <p v-if="errors.email" class="error-message">{{ errors.email }}</p>
-      </div>
+      <h2>Đăng Nhập</h2>
+      <form @submit.prevent="handleLogin">
+        <!-- Email -->
+        <div class="form-group">
+          <input
+            type="email"
+            v-model="email"
+            placeholder="Nhập email"
+            :disabled="isLocked"
+            @input="validateEmail"
+          />
+          <p v-if="errors.email" class="error-message">{{ errors.email }}</p>
+        </div>
 
-      <!-- Mật khẩu -->
-      <div class="form-group">
-        <input
-          type="password"
-          v-model="password"
-          placeholder="Nhập mật khẩu"
-          :disabled="isLocked"
-          @input="validatePassword"
-        />
-        <p v-if="errors.password" class="error-message">
-          {{ errors.password }}
+        <!-- Mật khẩu -->
+        <div class="form-group">
+          <input
+            type="password"
+            v-model="password"
+            placeholder="Nhập mật khẩu"
+            :disabled="isLocked"
+            @input="validatePassword"
+          />
+          <p v-if="errors.password" class="error-message">
+            {{ errors.password }}
+          </p>
+        </div>
+
+        <!-- Thông báo khóa tài khoản -->
+        <p class="error-message" v-if="isLocked">
+          Bạn đã đăng nhập sai 3 lần. Vui lòng thử lại sau {{ lockTime }} giây.
         </p>
-      </div>
+        <p v-if="failedAttempts >= 5">
+          Tài khoản đã bị khóa.
+          <a href="/reset-password">Khôi phục mật khẩu</a>.
+        </p>
 
-      <!-- Thông báo khóa tài khoản -->
-      <p  class="error-message"v-if="isLocked">
-        Bạn đã đăng nhập sai 3 lần. Vui lòng thử lại sau {{ lockTime }} giây.
-      </p>
-      <p v-if="failedAttempts >= 5">
-        Tài khoản đã bị khóa.
-        <a href="/reset-password">Khôi phục mật khẩu</a>.
-      </p>
-
-      <!-- Nút đăng nhập -->
-      <button :disabled="isLocked || failedAttempts >= 5 || !isFormValid">
-        Đăng nhập
-      </button>
-    </form>
+        <!-- Nút đăng nhập -->
+        <button :disabled="isLocked || failedAttempts >= 5 || !isFormValid">
+          Đăng nhập
+        </button>
+      </form>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -121,6 +121,7 @@ export default {
             this.failedAttempts = 0;
             sessionStorage.removeItem("failedAttempts");
             this.$toast.success(loginResponse.data.message);
+            this.$router.push({ name: "Company" });
           } else {
             this.handleFailedAttempt();
           }

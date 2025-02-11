@@ -42,7 +42,7 @@ if (token) {
       console.log("Token has expired. Logging out...");
       localStorage.removeItem('token');
       removeAuthorization();
-      router.push('/login'); // Redirect to login page
+      router.push('/company/login'); // Redirect to login page
     } else {
       setAuthorization(token); // Set the authorization header
     }
@@ -53,7 +53,7 @@ if (token) {
     removeAuthorization();
   }
 } else {
-  router.push('/login');
+  router.push('/company/login');
 }
 
 app.use(Toast, {

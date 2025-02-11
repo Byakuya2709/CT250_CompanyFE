@@ -286,7 +286,9 @@ export default {
 
         const bookedTickets = response.data.data || [];
         const allSeats = res.data.data || [];
-        const allDaysTickets = allSeats.filter(ticket => ticket.ticketDuration === "ALL_DAYS");
+        const allDaysTickets = allSeats.filter(
+          (ticket) => ticket.ticketDuration === "ALL_DAYS"
+        );
 
         const mergedArray = bookedTickets.concat(allDaysTickets);
 

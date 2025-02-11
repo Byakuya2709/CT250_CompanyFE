@@ -46,23 +46,6 @@
           <img :src="getPosterImage(event.eventListImgURL)" alt="Event Image" />
         </div>
       </div>
-
-      <!-- Pagination Controls -->
-      <div class="pagination">
-        <button
-          @click="changePage(currentPage - 1)"
-          :disabled="currentPage === 0"
-        >
-          Previous
-        </button>
-        <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
-        <button
-          @click="changePage(currentPage + 1)"
-          :disabled="currentPage === totalPages - 1"
-        >
-          Next
-        </button>
-      </div>
     </div>
 
     <div v-if="events.length === 0">No events found.</div>
@@ -70,16 +53,13 @@
 </template>
 
 <script>
-import { api } from "../api/Api";
+import { api } from "@/api/Api";
 
 export default {
   data() {
     return {
       events: [], // Store events data
       loading: false, // Loading flag
-      currentPage: 0, // Current page number
-      totalPages: 1, // Total number of pages
-      pageSize: 10, // Number of items per page
     };
   },
   mounted() {
@@ -95,13 +75,11 @@ export default {
       this.loading = true;
       try {
         const response = await api.get(
-          `/events/get-all/Upcoming/?page=${this.currentPage}&size=${this.pageSize}`
+          `/events/company/${this.$route.params.companyId}`
         );
 
         if (response.data.status === "OK") {
-          this.events = response.data.data.content; // Store events
-          console.log(this.events);
-          this.totalPages = response.data.data.totalPages; // Update total pages
+          this.events = response.data.data; // Store events
         } else {
           console.error("Error fetching events:", response.data.message);
         }
@@ -113,12 +91,6 @@ export default {
     },
 
     // Change page and fetch new data
-    changePage(pageNumber) {
-      if (pageNumber >= 0 && pageNumber < this.totalPages) {
-        this.currentPage = pageNumber;
-        this.getEvents();
-      }
-    },
 
     // Method to format date
     formatDate(dateString) {

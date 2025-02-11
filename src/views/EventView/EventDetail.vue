@@ -5,7 +5,7 @@
       <p v-for="(tag, index) in eventTags" :key="index" class="event-tags">
         {{ tag }}
       </p>
-
+      <p class="event-age-tag">{{ event.eventAgeTag }}</p>
       <div class="stars">
         <span
           v-for="index in getStars(event).fullStars"
@@ -23,8 +23,6 @@
           ★
         </span>
       </div>
-
-      <p class="event-age-tag">{{ event.eventAgeTag }}</p>
     </div>
 
     <div class="event-content">
@@ -85,7 +83,7 @@
           <p>
             <strong>ALL_DAY</strong>
           </p>
-          <p>Tổng: {{ this.event.totalDay }} ngày </p>
+          <p>Tổng: {{ this.event.totalDay }} ngày</p>
           <!-- <p>Remaining Tickets: {{ totalRemainCapacity }}</p> -->
           <button class="book-btn" @click="openModalAllDay">
             Đặt vé toàn sự kiện

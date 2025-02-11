@@ -24,24 +24,37 @@ const router = createRouter({
       path: '/company/create',
       name: 'CreateCompany',
       component: () => import('../views/CreateCompanyView.vue')
-    }, {
-      path: '/company',
-      name: 'Company',
-      component: () => import('../views/CompanyView.vue'),
-      children: [
-        {
-          path: '/profile',
-          name: 'Profile',
-          component: () => import('../views/UserView/CompanyProfile.vue'),
-          alias: 'dashboard',
-        },
-      ],
     },
     {
-      path: '/company/events',
-      name: 'Events',
-      component: () => import('../views/EventCreateView.vue'),
-    },
+      path: "/company",
+      name: "Company",
+      component: () => import("../views/CompanyView.vue"),
+      children: [
+        {
+          path: "profile",
+          name: "Profile",
+          component: () => import("@/views/CompanyView/CompanyProfile.vue"),
+          props: route => ({ userInfo: route.meta.userInfo })
+        },
+        {
+          path: ':companyId/create/event',
+          name: 'Events',
+          component: () => import('../views/EventCreateView.vue'),
+        },
+        {
+          path: ':companyId/events',
+          name: 'EventsList',
+          component: () => import('../views/CompanyView/AllEvent.vue'),
+        },
+      ],
+      meta: { userInfo: null } // Dùng meta để lưu userInfo
+    }
+    ,
+    // {
+    //   path: '/company/events',
+    //   name: 'Events',
+    //   component: () => import('../views/EventCreateView.vue'),
+    // },
     {
       path: '/company/events/:eventId',
       name: 'EventDetails',

@@ -86,7 +86,7 @@
                   <router-link
                     v-if="isAuthenticated"
                     class="menu-link link-active"
-                    to="/users"
+                    to="/company"
                     >Trang Quản Lý</router-link
                   >
                 </div>

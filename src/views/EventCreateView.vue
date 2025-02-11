@@ -202,6 +202,7 @@
             id="eventArtists"
             class="form-control"
             placeholder="Nhập tên nghệ sĩ"
+            @keydown.enter.prevent
           />
           <button type="button" class="btn btn-primary" @click="addArtist">
             Thêm nghệ sĩ
@@ -433,7 +434,7 @@ export default {
 
       this.event.eventDuration =
         this.eventDurationInput * (this.eventDurationType === "hours" ? 1 : 24);
-      this.event.eventCompanyId = this.user.id;
+      this.event.eventCompanyId = this.$route.params.companyId;
       const newEvent = {
         ...this.event, // Sao chép tất cả thuộc tính từ this.event
       };

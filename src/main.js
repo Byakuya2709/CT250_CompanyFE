@@ -17,6 +17,19 @@ import storePlugin from './plugins/store';
 import { jwtDecode } from 'jwt-decode';  // Sử dụng thư viện jwt-decode
 import { removeAuthorization, setAuthorization } from "./api/Api";
 
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale
+} from "chart.js";
+
+// Đăng ký tất cả thành phần cần thiết
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+
 
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";

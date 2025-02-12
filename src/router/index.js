@@ -46,6 +46,11 @@ const router = createRouter({
           name: 'EventsList',
           component: () => import('../views/CompanyView/AllEvent.vue'),
         },
+        {
+          path: ':companyId/dashboard',
+          name: 'CompanyDasboard',
+          component: () => import('../views/CompanyView/Dasboard.vue'),
+        },
       ],
       meta: { userInfo: null } // Dùng meta để lưu userInfo
     }

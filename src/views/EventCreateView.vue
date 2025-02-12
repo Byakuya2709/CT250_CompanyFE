@@ -59,10 +59,11 @@
           v-model="event.eventDescription"
           class="form-control"
           placeholder="Nhập mô tả sự kiện"
-          rows="3"
+          rows="10"
           @input="validateDescription"
           required
-        ></textarea>
+        >
+        </textarea>
         <p v-if="errors.eventDescription" class="error-message">
           {{ errors.eventDescription }}
         </p>
@@ -323,7 +324,7 @@ export default {
         eventTitle: "",
         eventStartDate: "",
         eventEndDate: "",
-        eventDescription: "",
+        eventDescription: `[Tóm tắt ngắn gọn về sự kiện: Nội dung chính của sự kiện, điểm đặc sắc nhất và lý do khiến người tham gia không nên bỏ lỡ]\n\nChi tiết sự kiện:\n\nChương trình chính: [Liệt kê những hoạt động nổi bật trong sự kiện: các phần trình diễn, khách mời đặc biệt, lịch trình các tiết mục cụ thể nếu có.]\nKhách mời: [Thông tin về các khách mời đặc biệt, nghệ sĩ, diễn giả sẽ tham gia sự kiện. Có thể bao gồm phần mô tả ngắn gọn về họ và những gì họ sẽ mang lại cho sự kiện.]\nTrải nghiệm đặc biệt: [Nếu có các hoạt động đặc biệt khác như workshop, khu trải nghiệm, photo booth, khu vực check-in hay các phần quà/ưu đãi dành riêng cho người tham dự.]\n\nĐiều khoản và điều kiện:\n\n[TnC] sự kiện\n\nLưu ý về điều khoản trẻ em\n\nLưu ý về điều khoản VAT`,
         eventAgeTag: null,
         eventTags: [],
         eventDuration: 0,

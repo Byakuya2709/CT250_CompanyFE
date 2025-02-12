@@ -14,7 +14,8 @@
           class="event"
         >
           <h3>{{ event.eventTitle }}</h3>
-          <p>{{ event.eventDescription }}</p>
+          <p class="event-description">{{ event.eventDescription }}</p>
+
           <p>
             <strong>Start Date:</strong> {{ formatDate(event.eventStartDate) }}
           </p>
@@ -84,6 +85,7 @@ export default {
           console.error("Error fetching events:", response.data.message);
         }
       } catch (error) {
+        this.$toast.error(error.response?.data?.message || "Đã xảy ra lỗi");
         console.error("Error fetching events:", error);
       } finally {
         this.loading = false;
@@ -174,6 +176,14 @@ body {
   font-size: 1rem;
   color: #666;
   line-height: 1.5;
+}
+.event-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Hiển thị tối đa 3 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Hiển thị dấu "..." nếu quá dài */
+  max-width: 100%;
 }
 
 .event img {

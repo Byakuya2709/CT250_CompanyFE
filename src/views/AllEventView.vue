@@ -14,7 +14,8 @@
           class="event"
         >
           <h3>{{ event.eventTitle }}</h3>
-          <p>{{ event.eventDescription }}</p>
+          <p class="event-description">{{ event.eventDescription }}</p>
+
           <p>
             <strong>Start Date:</strong> {{ formatDate(event.eventStartDate) }}
           </p>
@@ -214,6 +215,14 @@ body {
 
 .event img:hover {
   transform: scale(1.05);
+}
+.event-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Hiển thị tối đa 3 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Hiển thị dấu "..." nếu quá dài */
+  max-width: 100%;
 }
 
 /* Đánh giá sao */

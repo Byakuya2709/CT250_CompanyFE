@@ -57,7 +57,16 @@
 
     <div class="event-descriptions">
       <h3>Mô tả sự kiện</h3>
-      <p><strong>Description:</strong> {{ event.eventDescription }}</p>
+      <p class="event-description">
+        {{ isExpanded ? event.eventDescription : truncatedText }}
+      </p>
+      <button
+        v-if="event.eventDescription.length > maxLength"
+        @click="isExpanded = !isExpanded"
+        class="toggle-btn"
+      >
+        {{ isExpanded ? "Thu gọn" : "Xem thêm" }}
+      </button>
     </div>
 
     <div class="event-tickets">
@@ -74,7 +83,13 @@
           <p>Remaining Tickets: {{ remainingCapacity }}</p>
           <button
             class="book-btn"
+            :disabled="!canPurchaseTicket"
             @click="openModal({ day, remainingCapacity })"
+            :title="
+              !canPurchaseTicket
+                ? 'Vé chỉ được mua trong vòng 7 ngày trước khi sự kiện bắt đầu'
+                : ''
+            "
           >
             Đặt vé ngay
           </button>
@@ -83,15 +98,40 @@
           <p>
             <strong>ALL_DAY</strong>
           </p>
-          <p>Tổng: {{ this.event.totalDay }} ngày</p>
-          <!-- <p>Remaining Tickets: {{ totalRemainCapacity }}</p> -->
-          <button class="book-btn" @click="openModalAllDay">
+          <p>Tổng: {{ event.totalDay }} ngày</p>
+          <button
+            class="book-btn"
+            :disabled="!canPurchaseTicket"
+            @click="openModalAllDay"
+            :title="
+              !canPurchaseTicket
+                ? 'Vé chỉ được mua trong vòng 7 ngày trước khi sự kiện bắt đầu'
+                : ''
+            "
+          >
             Đặt vé toàn sự kiện
           </button>
         </div>
       </div>
     </div>
 
+    <button
+      :disabled="!canUpdateZone"
+      @click="isModalOpen = true"
+      :title="
+        !canUpdateZone
+          ? 'Chỉ được cập nhật zone trước 7 ngày trước khi sự kiện bắt đầu'
+          : ''
+      "
+    >
+      Cập nhật Zone
+    </button>
+
+    <UpdateZoneModal
+      :eventId="event.eventId"
+      :isModalOpen="isModalOpen"
+      @close="isModalOpen = false"
+    />
     <!-- Modal đặt vé -->
     <EventBooking
       v-if="showModal"
@@ -103,7 +143,7 @@
   <EventBookingAllDay
     v-if="showModalAllDay"
     :event="event"
-    :day="this.string"
+    :day="string"
     @close="closeModal"
   />
 </template>
@@ -114,20 +154,24 @@ import "swiper/swiper-bundle.css";
 import { api } from "@/api/Api";
 import EventBooking from "@/views/EventView/EventBooking.vue";
 import EventBookingAllDay from "@/views/EventView/EventBookingAllDay.vue";
-
+import UpdateZoneModal from "@/views/EventView/UpdateZoneModal.vue";
 export default {
   components: {
     Swiper,
     SwiperSlide,
     EventBooking,
     EventBookingAllDay,
+    UpdateZoneModal,
   },
   data() {
     return {
+      isModalOpen: false,
       loading: true,
       eventId: this.$route.params.eventId,
       event: null,
       showModal: false,
+      isExpanded: false,
+      maxLength: 100, // Giới hạn số ký tự hiển thị ban đầu
       showModalAllDay: false,
       string: "ALL_DAYS",
       selectedTicket: null,
@@ -174,6 +218,7 @@ export default {
         this.event = response.data.data;
       } catch (error) {
         console.error("Error fetching event data:", error);
+        this.$toast.error(error.response?.data?.message || "Đã xảy ra lỗi");
       } finally {
         this.loading = false;
       }
@@ -240,6 +285,11 @@ export default {
     },
   },
   computed: {
+    truncatedText() {
+      return this.event.eventDescription.length > this.maxLength
+        ? this.event.eventDescription.substring(0, this.maxLength) + "..."
+        : this.event.eventDescription;
+    },
     formattedStartDate() {
       return this.event?.eventStartDate
         ? new Date(this.event.eventStartDate).toLocaleString()
@@ -261,9 +311,28 @@ export default {
         )
       );
     },
+    // Cho phép cập nhật Zone nếu sự kiện cách hiện tại hơn 7 ngày
+    canUpdateZone() {
+      if (!this.event || !this.event.eventStartDate) return false;
+      const now = new Date();
+      const eventDate = new Date(this.event.eventStartDate);
+      const diffTime = eventDate.getTime() - now.getTime();
+      const diffDays = diffTime / (1000 * 3600 * 24);
+      return diffDays > 7;
+    },
+    // Cho phép mua vé nếu thời gian còn lại từ 0 đến 7 ngày trước khi sự kiện bắt đầu
+    canPurchaseTicket() {
+      if (!this.event || !this.event.eventStartDate) return false;
+      const now = new Date();
+      const eventDate = new Date(this.event.eventStartDate);
+      const diffTime = eventDate.getTime() - now.getTime();
+      const diffDays = diffTime / (1000 * 3600 * 24);
+      return diffDays <= 7 && diffDays >= 0;
+    },
   },
 };
 </script>
+
 <style scoped>
 .event-container {
   width: 80%;
@@ -337,7 +406,14 @@ export default {
   margin: 5px;
   border-radius: 5px;
 }
-
+.toggle-btn {
+  background: none;
+  border: none;
+  color: blue;
+  cursor: pointer;
+  display: block;
+  margin: 10px auto; /* Căn giữa */
+}
 .event-tickets {
   margin-top: 20px;
   text-align: center;
@@ -369,6 +445,12 @@ export default {
 
 .book-btn:hover {
   background: #b71c1c;
+}
+
+.book-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #ccc;
 }
 
 .event-image-carousel {
@@ -430,5 +512,8 @@ export default {
 
 .empty-star {
   color: #e0e0e0;
+}
+.event-description {
+  white-space: pre-line;
 }
 </style>

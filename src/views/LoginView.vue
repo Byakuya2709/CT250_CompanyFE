@@ -33,9 +33,10 @@
         <p class="error-message" v-if="isLocked">
           Bạn đã đăng nhập sai 3 lần. Vui lòng thử lại sau {{ lockTime }} giây.
         </p>
-        <p v-if="failedAttempts >= 5">
-          Tài khoản đã bị khóa.
-          <a href="/reset-password">Khôi phục mật khẩu</a>.
+        <p>
+          <router-link to="/company/reset-password"
+            >Khôi phục mật khẩu</router-link
+          >.
         </p>
 
         <!-- Nút đăng nhập -->

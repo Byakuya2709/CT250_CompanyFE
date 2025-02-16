@@ -48,9 +48,7 @@
           <p><strong>Ghế:</strong> {{ selectedSeats.join(", ") }}</p>
           <p>
             <strong>Giá vé:</strong>
-            {{
-              (event.eventPrice * selectedZone.zoneRate).toLocaleString("vi-VN")
-            }}
+            {{ formattedPrice }}
             VND
           </p>
           <p><strong>Thanh toán:</strong> Chưa Thanh Toán - UNPAID</p>
@@ -70,6 +68,16 @@
         Xác nhận đặt {{ selectedSeats.length }} vé
       </button>
       <button class="close-btn" @click="$emit('close')">Đóng</button>
+
+
+      <a
+        v-if="paymentUrl"
+        :href="paymentUrl"
+        target="_blank"
+        class="btn btn-primary"
+      >
+        Thanh toán ngay
+      </a>
     </div>
   </div>
 </template>
@@ -244,11 +252,20 @@ export default {
       zones: [],
       selectedZone: null,
       availableSeats: [],
+      paymentUrl:null
     };
   },
   computed: {
     user() {
       return this.$authStore.user;
+    },
+    formattedPrice() {
+      return (
+        this.event.eventPrice * this.selectedZone.zoneRate
+      ).toLocaleString("vi-VN");
+    },
+    amountInt() {
+      return Math.round(this.event.eventPrice * this.selectedZone.zoneRate); // Chuyển thành số nguyên
     },
   },
   async mounted() {
@@ -346,7 +363,31 @@ export default {
         try {
           const response = await api.post(`/booking/ticket`, ticket);
 
-          toast.success(response.data.message, { position: "top-right" }); // Toast thành công
+          toast.info(
+            response.data.message + ". Vui lòng thanh toán trong 15 phút",
+            { position: "top-right" }
+          ); // Toast thành công
+
+          const ticketId = response.data.data.ticketId;
+          const body = {
+            userId: this.user.id,
+            receiverId: this.event.eventCompanyId,
+            paymentDescrption:
+              "Thanh toán vé sự kiện: " + this.event.eventTitle,
+            eventId: this.event.eventId,
+            ticketId: ticketId,
+          };
+
+          const params = {
+            amount: this.amountInt,
+          };
+
+          const res = await api.post(`/payment/createPayment`, body, {
+            params: params,
+          });
+          this.paymentUrl = res.data; // Lưu vào biến
+
+          console.log("URL Thanh toán:", this.paymentUrl);
         } catch (error) {
           toast.error(
             error.response?.data?.message || "Không thể kết nối đến hệ thống.",

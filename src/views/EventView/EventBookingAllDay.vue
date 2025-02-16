@@ -3,7 +3,10 @@
     <div class="modal-content">
       <h2 class="modal-title">Đặt vé sự kiện</h2>
       <p class="event-info"><strong>Sự kiện:</strong> {{ event.eventTitle }}</p>
-      <p class="event-info"><strong>Giá vé:</strong> {{ event.eventPrice.toLocaleString('vi-VN') }} VND</p>
+      <p class="event-info">
+        <strong>Giá vé:</strong>
+        {{ event.eventPrice.toLocaleString("vi-VN") }} VND
+      </p>
 
       <label for="zone" class="label">Chọn khu vực:</label>
       <select v-model="selectedZone" @change="filterSeats" class="dropdown">
@@ -13,7 +16,10 @@
       </select>
 
       <div v-if="selectedZone" class="seat-container">
-        <h3>Chọn ghế trong khu vực {{ selectedZone.zoneName  }} ( x {{selectedZone.zoneRate}} % giá vé)</h3>
+        <h3>
+          Chọn ghế trong khu vực {{ selectedZone.zoneName }} ( x
+          {{ selectedZone.zoneRate }} % giá vé)
+        </h3>
         <div class="seat-grid">
           <button
             v-for="seat in availableSeats"
@@ -24,10 +30,12 @@
               paid: bookedSeats[seat] === 'PAID',
               unpaid: bookedSeats[seat] === 'UNPAID',
             }"
-            :disabled="bookedSeats[seat] === 'PAID' || bookedSeats[seat] === 'UNPAID'"
+            :disabled="
+              bookedSeats[seat] === 'PAID' || bookedSeats[seat] === 'UNPAID'
+            "
             @click="toggleSeat(seat)"
           >
-            {{ seat.split('_')[1] }}
+            {{ seat.split("_")[1] }}
           </button>
         </div>
       </div>
@@ -37,19 +45,33 @@
         <div class="ticket-body">
           <p><strong>Sự kiện:</strong> {{ event.eventTitle }}</p>
           <p><strong>Khu vực:</strong> {{ selectedZone.zoneName }}</p>
-          <p><strong>Ghế:</strong> {{ selectedSeats.join(', ') }}</p>
-          <p><strong>Giá vé:</strong> {{ (event.eventPrice * selectedZone.zoneRate).toLocaleString('vi-VN') }} VND</p>
-          <p><strong>Thanh toán:</strong> Chưa Thanh Toán -  UNPAID</p>
+          <p><strong>Ghế:</strong> {{ selectedSeats.join(", ") }}</p>
+          <p><strong>Giá vé:</strong> {{ formattedPrice }} VND</p>
+          <p><strong>Thanh toán:</strong> Chưa Thanh Toán - UNPAID</p>
           <p><strong>Loại vé:</strong> ALL_DAYS</p>
-          <p><strong>Ngày kích hoạt:</strong> {{ formatDate(event.eventStartDate) }}</p>
-
+          <p>
+            <strong>Ngày kích hoạt:</strong>
+            {{ formatDate(event.eventStartDate) }}
+          </p>
         </div>
       </div>
 
-      <button @click="bookTicket" :disabled="selectedSeats.length === 0" class="confirm-btn">
+      <button
+        @click="bookTicket"
+        :disabled="selectedSeats.length === 0"
+        class="confirm-btn"
+      >
         Xác nhận đặt {{ selectedSeats.length }} vé
       </button>
       <button class="close-btn" @click="$emit('close')">Đóng</button>
+      <a
+        v-if="paymentUrl"
+        :href="paymentUrl"
+        target="_blank"
+        class="btn btn-primary"
+      >
+        Thanh toán ngay
+      </a>
     </div>
   </div>
 </template>
@@ -60,108 +82,138 @@ import { useToast } from "vue-toastification";
 import dayjs from "dayjs";
 
 export default {
-props: {
-  event: Object,
-},
-data() {
-  return {
-    selectedSeats: [],
-    allBookedSeats: {},
-    bookedSeats: {},
-    zones: [],
-    selectedZone: null,
-    availableSeats: [],
-  };
-},
-computed: {
-  user() {
-    return this.$authStore.user;
+  props: {
+    event: Object,
   },
-  filteredZones() {
-    return this.zones.filter(zone => zone.day === this.event.day);
+  data() {
+    return {
+      selectedSeats: [],
+      allBookedSeats: {},
+      bookedSeats: {},
+      zones: [],
+      selectedZone: null,
+      availableSeats: [],
+      paymentUrl: null,
+    };
   },
-  calculatedPrice() {
-    return this.selectedZone ? this.event.eventPrice * this.selectedZone.zoneRate : 0;
-  }
-},
-async mounted() {
-  await this.fetchZones();
-  await this.fetchAllSeats();
-},
-watch: {
-  "event.day"() {
-    this.fetchZones();
-    this.fetchAllSeats();
+  computed: {
+    user() {
+      return this.$authStore.user;
+    },
+    filteredZones() {
+      return this.zones.filter((zone) => zone.day === this.event.day);
+    },
+    amountInt() {
+      return Math.round(
+        this.event.eventPrice * this.selectedZone.zoneRate * this.event.totalDay
+      ); // Chuyển thành số nguyên
+    },
+    calculatedPrice() {
+      return this.selectedZone
+        ? this.event.eventPrice * this.selectedZone.zoneRate
+        : 0;
+    },
+    formattedPrice() {
+      return (
+        this.event.eventPrice *
+        this.selectedZone.zoneRate *
+        this.event.totalDay
+      ).toLocaleString("vi-VN");
+    },
   },
-},
-methods: {
-  async fetchZones() {
-  try {
-    const response = await api.get(`/booking/zone/${this.event.eventId}/all`);
-    const zoneData = response.data.data;
+  async mounted() {
+    await this.fetchZones();
+    await this.fetchAllSeats();
+  },
+  watch: {
+    "event.day"() {
+      this.fetchZones();
+      this.fetchAllSeats();
+    },
+  },
+  methods: {
+    async fetchZones() {
+      try {
+        const response = await api.get(
+          `/booking/zone/${this.event.eventId}/all`
+        );
+        const zoneData = response.data.data;
 
-    // Danh sách các loại zone cần lấy
-    const zoneTypes = ["VIP", "STANDARD", "ECONOMY"];
-    const minZones = {};
+        // Danh sách các loại zone cần lấy
+        const zoneTypes = ["VIP", "STANDARD", "ECONOMY"];
+        const minZones = {};
 
-    // Duyệt qua danh sách zone và tìm min remainingCapacity cho từng loại
-    zoneData.forEach(zone => {
-      if (zoneTypes.includes(zone.zoneName)) {
-        if (!minZones[zone.zoneName] || minZones[zone.zoneName].remainingCapacity > zone.remainingCapacity) {
-          minZones[zone.zoneName] = { 
-            zoneId: zone.zoneId,
-            zoneName: zone.zoneName,
-            zoneRate: zone.zoneRate,
-            zoneCapacity: zone.zoneCapacity,
-            remainingCapacity: zone.remainingCapacity 
-          };
-        }
+        // Duyệt qua danh sách zone và tìm min remainingCapacity cho từng loại
+        zoneData.forEach((zone) => {
+          if (zoneTypes.includes(zone.zoneName)) {
+            if (
+              !minZones[zone.zoneName] ||
+              minZones[zone.zoneName].remainingCapacity > zone.remainingCapacity
+            ) {
+              minZones[zone.zoneName] = {
+                zoneId: zone.zoneId,
+                zoneName: zone.zoneName,
+                zoneRate: zone.zoneRate,
+                zoneCapacity: zone.zoneCapacity,
+                remainingCapacity: zone.remainingCapacity,
+              };
+            }
+          }
+        });
+
+        // Chỉ lấy 3 loại zone khác biệt
+        this.zones = Object.values(minZones);
+        console.log(this.zones);
+      } catch (error) {
+        useToast().error("Không thể kết nối đến hệ thống.", {
+          position: "top-right",
+        });
       }
-    });
+    },
 
-    // Chỉ lấy 3 loại zone khác biệt
-    this.zones = Object.values(minZones);
-    console.log(this.zones)
-  } catch (error) {
-    useToast().error("Không thể kết nối đến hệ thống.", { position: "top-right" });
-  }
-},
+    async fetchAllSeats() {
+      try {
+        const response = await api.get(
+          `/events/tickets/${this.event.eventId}/all`
+        );
+        const tickets = response.data.data || [];
 
-  async fetchAllSeats() {
-    try {
-      const response = await api.get(`/events/tickets/${this.event.eventId}/all`);
-      const tickets = response.data.data || [];
-      
-      this.allBookedSeats = tickets.reduce((acc, ticket) => {
-        acc[ticket.ticketPosition] = ticket.ticketStatus;
-        return acc;
-      }, {});
-      console.log( this.allBookedSeats)
-    } catch (error) {
-      useToast().error("Không thể kết nối đến hệ thống.", { position: "top-right" });
-    }
-  },
-  filterSeats() {
-    if (!this.selectedZone) return;
-    this.bookedSeats = Object.fromEntries(
-      Object.entries(this.allBookedSeats).filter(([seat]) =>
-        seat.startsWith(`${this.selectedZone.zoneName}`)
+        this.allBookedSeats = tickets.reduce((acc, ticket) => {
+          acc[ticket.ticketPosition] = ticket.ticketStatus;
+          return acc;
+        }, {});
+        console.log(this.allBookedSeats);
+      } catch (error) {
+        useToast().error("Không thể kết nối đến hệ thống.", {
+          position: "top-right",
+        });
+      }
+    },
+    filterSeats() {
+      if (!this.selectedZone) return;
+      this.bookedSeats = Object.fromEntries(
+        Object.entries(this.allBookedSeats).filter(([seat]) =>
+          seat.startsWith(`${this.selectedZone.zoneName}`)
+        )
+      );
+      this.availableSeats = Array.from(
+        { length: this.selectedZone.zoneCapacity },
+        (_, i) => `${this.selectedZone.zoneName}_${i + 1}`
+      );
+      console.log(this.availableSeats);
+    },
+    toggleSeat(seat) {
+      if (
+        this.bookedSeats[seat] === "PAID" ||
+        this.bookedSeats[seat] === "UNPAID"
       )
-    );
-    this.availableSeats = Array.from(
-      { length: this.selectedZone.zoneCapacity },
-      (_, i) => `${this.selectedZone.zoneName}_${i + 1}`
-    );
-    console.log( this.availableSeats)
-  },
-  toggleSeat(seat) {
-    if (this.bookedSeats[seat] === "PAID" || this.bookedSeats[seat] === "UNPAID") return;
-    this.selectedSeats = this.selectedSeats.includes(seat) ? [] : [seat];
-  },
-  async bookTicket() {
-    const toast = useToast();
-    if (this.selectedSeats.length > 0) {
-      const ticket = {
+        return;
+      this.selectedSeats = this.selectedSeats.includes(seat) ? [] : [seat];
+    },
+    async bookTicket() {
+      const toast = useToast();
+      if (this.selectedSeats.length > 0) {
+        const ticket = {
           eventId: this.event.eventId,
           userId: this.user.id,
           ticketPrice: this.event.eventPrice,
@@ -169,19 +221,46 @@ methods: {
           ticketPosition: this.selectedSeats[0],
           ticketDuration: "ALL_DAYS",
           ticketZone: this.selectedZone.zoneName,
+        };
+        try {
+          const response = await api.post(`/booking/ticket`, ticket);
+          toast.info(
+            response.data.message + ". Vui lòng thanh toán trong 15 phút",
+            { position: "top-right" }
+          ); // Toast thành công
+
+          const ticketId = response.data.data.ticketId;
+          const body = {
+            userId: this.user.id,
+            receiverId: this.event.eventCompanyId,
+            paymentDescrption:
+              "Thanh toán vé sự kiện: " + this.event.eventTitle,
+            eventId: this.event.eventId,
+            ticketId: ticketId,
+          };
+
+          const params = {
+            amount: this.amountInt,
+          };
+
+          const res = await api.post(`/payment/createPayment`, body, {
+            params: params,
+          });
+          this.paymentUrl = res.data; // Lưu vào biến
+
+          console.log("URL Thanh toán:", this.paymentUrl);
+        } catch (error) {
+          toast.error(
+            error.response?.data?.message || "Không thể kết nối đến hệ thống.",
+            { position: "top-right" }
+          ); // Toast lỗi
         }
-      try {
-        const response = await api.post(`/booking/ticket`,ticket);
-        toast.success(response.data.message, { position: "top-right" });
-      } catch (error) {
-        toast.error("Không thể kết nối đến hệ thống.", { position: "top-right" });
       }
-    }
+    },
+    formatDate(date) {
+      return dayjs(date).format("YYYY-MM-DD HH:mm:ss");
+    },
   },
-  formatDate(date) {
-    return dayjs(date).format("YYYY-MM-DD HH:mm:ss");
-  }
-},
 };
 </script>
 <style scoped>

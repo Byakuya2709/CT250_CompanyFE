@@ -19,7 +19,7 @@ const router = createRouter({
       path: "/payment-result",
       name: "PaymentResult",
       component: () => import("../views/PaymentResult.vue")
-    },    
+    },
     {
       path: "/company/login",
       name: "login",
@@ -52,6 +52,12 @@ const router = createRouter({
           component: () => import('../views/EventCreateView.vue'),
         },
         {
+          path: ':companyId/create/event/:eventId/submission',
+          name: 'EventSubmissions',
+          component: () => import('../views/CompanyView/CreateSubmission.vue'),
+          props: route => ({ userInfo: route.meta.userInfo })
+        },
+        {
           path: ':companyId/events',
           name: 'EventsList',
           component: () => import('../views/CompanyView/AllEvent.vue'),
@@ -60,6 +66,12 @@ const router = createRouter({
           path: ':companyId/dashboard',
           name: 'CompanyDasboard',
           component: () => import('../views/CompanyView/Dasboard.vue'),
+        },
+        {
+          path: '/company/:companyId/events/:eventId/update',
+          name: 'EventUpdate',
+          component: () => import('../views/EventView/EventUpdate.vue'),
+          props: route => ({ userInfo: route.meta.userInfo })
         },
       ],
       meta: { userInfo: null } // Dùng meta để lưu userInfo
@@ -89,6 +101,7 @@ const router = createRouter({
         }
       ]
     },
+
     {
       path: '/company/events/all',
       name: 'ListEvents',

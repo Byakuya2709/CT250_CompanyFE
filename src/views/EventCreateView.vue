@@ -334,6 +334,7 @@ export default {
         eventStatus: "",
         eventListArtist: [],
         eventCompanyId: sessionStorage.getItem("email") || "Company",
+        eventCompanyName: sessionStorage.getItem("companyName") || "Company",
         eventPrice: 0,
         eventListImgURL: [],
       },

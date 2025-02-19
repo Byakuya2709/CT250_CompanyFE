@@ -44,14 +44,89 @@
         </swiper-slide>
       </swiper>
 
-      <div class="event-details">
-        <h3>Event Details</h3>
-        <p><strong>Start Date:</strong> {{ formattedStartDate }}</p>
-        <p><strong>End Date:</strong> {{ formattedEndDate }}</p>
-        <p><strong>Price:</strong> {{ event.eventPrice }} VND</p>
-        <p><strong>Location:</strong> {{ event.eventAddress }}</p>
-        <p><strong>Capacity:</strong> {{ event.eventCapacity }} people</p>
-        <p><strong>Status:</strong> {{ event.eventStatus }}</p>
+      <div class="event-details card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4">
+          <h3
+            class="card-title text-center text-uppercase fw-bold text-primary mb-4"
+          >
+            <i class="fas fa-calendar-alt"></i> Event Details
+          </h3>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between">
+              <strong
+                ><i class="fas fa-clock text-warning"></i> Start Date:</strong
+              >
+              <span>{{ formattedStartDate }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong
+                ><i class="fas fa-clock text-danger"></i> End Date:</strong
+              >
+              <span>{{ formattedEndDate }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong
+                ><i class="fas fa-money-bill-wave text-success"></i>
+                Price:</strong
+              >
+              <span class="fw-semibold text-success"
+                >{{ event.eventPrice }} VND</span
+              >
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong
+                ><i class="fas fa-map-marker-alt text-info"></i>
+                Location:</strong
+              >
+              <span>{{ event.eventAddress }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong
+                ><i class="fas fa-users text-primary"></i> Capacity:</strong
+              >
+              <span class="fw-semibold text-primary"
+                >{{ event.eventCapacity }} people</span
+              >
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong
+                ><i class="fas fa-check-circle text-secondary"></i>
+                Status:</strong
+              >
+              <span class="fw-bold">{{ event.eventStatus }}</span>
+            </li>
+          </ul>
+          <button
+            class="btn btn-primary"
+            :disabled="!canUpdateZone"
+            @click="isModalOpen = true"
+            :title="
+              !canUpdateZone
+                ? 'Chỉ được cập nhật zone trước 7 ngày trước khi sự kiện bắt đầu'
+                : ''
+            "
+          >
+            Cập nhật Zone
+          </button>
+          <router-link
+            :to="{
+              name: 'EventUpdate',
+              params: {
+                eventId: event.eventId,
+                companyId: event.eventCompanyId,
+              },
+            }"
+            class="btn btn-primary position-relative"
+            :class="{ disabled: !canUpdateZone }"
+            v-tooltip="
+              !canUpdateZone
+                ? 'Chỉ được cập nhật trước 7 ngày trước khi sự kiện bắt đầu'
+                : ''
+            "
+          >
+            <i class="fas fa-edit"></i> Cập nhật Sự Kiện
+          </router-link>
+        </div>
       </div>
     </div>
 
@@ -114,18 +189,6 @@
         </div>
       </div>
     </div>
-
-    <button
-      :disabled="!canUpdateZone"
-      @click="isModalOpen = true"
-      :title="
-        !canUpdateZone
-          ? 'Chỉ được cập nhật zone trước 7 ngày trước khi sự kiện bắt đầu'
-          : ''
-      "
-    >
-      Cập nhật Zone
-    </button>
 
     <UpdateZoneModal
       :eventId="event.eventId"
@@ -335,27 +398,105 @@ export default {
 
 <style scoped>
 .event-container {
-  width: 80%;
-  margin: 0 auto;
+  width: 100vw;
+  min-height: 100vh;
+  background: linear-gradient(to right, #2f3132, #c6cbcf);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .event-header {
   text-align: center;
-  background: #d32f2f;
+  background: linear-gradient(135deg, #c12c07, #feb47b);
   color: white;
-  padding: 15px;
-  border-radius: 8px 8px 0 0;
+  padding: 20px;
+  width: 90%;
+  border-radius: 15px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .event-title {
-  font-size: 24px;
+  font-size: 32px;
   font-weight: bold;
+  text-transform: uppercase;
 }
 
+.tags-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.event-tag,
+.event-age-tag {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.stars {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.full-star {
+  color: gold;
+}
+.half-star {
+  color: gold;
+  opacity: 0.6;
+}
+.empty-star {
+  color: gray;
+}
+
+.event-content {
+  display: flex;
+  width: 90%;
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.event-image-carousel {
+  flex: 1;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.event-image {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.event-description-container {
+  text-align: center;
+  max-width: 80%;
+  margin-top: 20px;
+}
+.event-descriptions {
+}
+.event-description {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #ffb74d;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
 .event-tags,
 .event-age-tag {
   display: inline-block;
@@ -376,8 +517,9 @@ export default {
 .event-details {
   flex: 1;
   padding: 20px;
-  background: #f9f9f9;
   border-radius: 8px;
+  padding: 15px;
+  color: black;
 }
 
 .event-details h3 {
@@ -424,13 +566,6 @@ export default {
   flex-wrap: wrap;
   gap: 10px;
   justify-content: center;
-}
-
-.ticket-card {
-  background: #f5f5f5;
-  padding: 15px;
-  border-radius: 5px;
-  text-align: center;
 }
 
 .book-btn {
@@ -513,7 +648,54 @@ export default {
 .empty-star {
   color: #e0e0e0;
 }
+
 .event-description {
+  margin-top: 20px;
+  text-align: justify;
   white-space: pre-line;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #ffcc00;
+  cursor: pointer;
+  display: block;
+  margin: 10px auto;
+}
+
+.event-tickets {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.ticket-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+.ticket-card {
+  padding: 15px;
+  border-radius: 5px;
+  text-align: center;
+  background: #cfe2cd;
+  color: black;
+}
+
+.book-btn {
+  margin-top: 10px;
+  padding: 8px 15px;
+  background: #ffcc00;
+  color: black;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.book-btn:hover {
+  background: #e6b800;
 }
 </style>

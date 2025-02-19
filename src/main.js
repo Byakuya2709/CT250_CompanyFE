@@ -17,6 +17,9 @@ import storePlugin from './plugins/store';
 import { jwtDecode } from 'jwt-decode';  // Sử dụng thư viện jwt-decode
 import { removeAuthorization, setAuthorization } from "./api/Api";
 
+import VTooltip from "v-tooltip";
+
+
 import {
   Chart as ChartJS,
   Title,
@@ -71,7 +74,7 @@ app.use(Toast, {
 });
 import VueKonva from 'vue-konva';
 app.use(VueKonva)
-
+app.use(VTooltip);
 app.use(ToastPlugin);
 app.use(createPinia());
 app.use(router);

@@ -1,90 +1,79 @@
-import { defineStore } from 'pinia';
-import { api } from '../api/Api';
-import { removeAuthorization, setAuthorization } from "../api/Api";
-import { jwtDecode } from 'jwt-decode';
+import { defineStore } from "pinia";
+import { api} from "@/api/Api";
+import { jwtDecode } from "jwt-decode";
 import { useToast } from "vue-toastification";
-import router from "@/router/index";
+import router from "@/router";
+
+
+import { useCookies } from "vue3-cookies";
+
+const { cookies } = useCookies(); // Lấy cookies API
 
 
 const toast = useToast();
 
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore("auth", {
   state: () => ({
-    user: {
-      id: null,
-      email: ''
-    },
+    user: { id: null, email: "" },
     token: null,
-    error: null,
     role: null,
   }),
   actions: {
-    async hydrate() {
-      const token = localStorage.getItem('token');
+    hydrate() {
+      const token = cookies.get("token");
       if (token) {
         this.token = token;
-        setAuthorization(token);
+   
         const decodedToken = jwtDecode(token);
         this.$patch({
+          user: { id: decodedToken.userId, email: decodedToken.sub },
           role: decodedToken.role,
-          user: {
-            id: decodedToken.userId,
-            email: decodedToken.sub
-          },
         });
       }
     },
     async login(user) {
       try {
-        const response = await api.post('/auth/login', user);
+        const response = await api.post("/auth/login", user);
         const res = response.data;
-
-
         this.token = res.data.token;
         const decodedToken = jwtDecode(this.token);
-        this.role = decodedToken.role;
 
         // Cập nhật state
         this.$patch({
-          user: {
-            id: res.data.userId,
-            email: decodedToken.sub
-          },
+          user: { id: res.data.userId, email: decodedToken.sub },
           role: decodedToken.role,
           token: this.token,
         });
 
-        const loginResponse = response;
-        localStorage.setItem('token', this.token);
+        // Lưu token vào cookie & API
+        const expiresInSeconds = decodedToken.exp - Math.floor(Date.now() / 1000);
+        cookies.set("token", this.token, expiresInSeconds + "s");
+
+        cookies.set('email',decodedToken.sub,expiresInSeconds + "s")
+        
         sessionStorage.setItem('email', decodedToken.sub);
-        setAuthorization(this.token);
-        this.error = null; // Reset error
-        return { loginResponse, role: this.role };
-      } catch (err) {
-        console.log(err);
-        localStorage.removeItem('token'); // Xóa token khi lỗi
-        removeAuthorization();
-        this.error = err.response?.data?.message || 'An error occurred';
-        throw new Error(this.error);
+        return { loginResponse: response, role: this.role };
+      } catch (err) {F
+        cookies.remove("token");
+        this.token = null;
+        this.user = { id: null, email: "" };
+        throw new Error(err.response?.data?.message || "Login failed");
       }
     },
     async logout() {
-      // Cập nhật lại state khi đăng xuất
       this.$patch({
         token: null,
-        user: { id: null, name: '', email: '' },
+        user: { id: null, email: "" },
         role: null,
       });
-
-      localStorage.removeItem('token');
       sessionStorage.removeItem('email');
-      removeAuthorization();
-      toast.info("Đang chuyển sang trang đăng nhập")
-      setTimeout(() => {
-        router.replace('/company/login')
-      }, 2000);
-    }
+      cookies.remove("token");
+      cookies.remove("email");
+      toast.info("Đang đăng xuất...");
+      setTimeout(() => router.replace("/company/login"), 1500);
+    },
   },
+
   getters: {
     isAuthenticated: (state) => !!state.token,
     isAdmin: (state) => state.role && state.role.replace('ROLE_', '') === 'ADMIN',

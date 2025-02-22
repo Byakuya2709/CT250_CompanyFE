@@ -2,43 +2,54 @@ import { createRouter, createWebHistory } from 'vue-router'; // Dùng createWebH
 import HomeView from '../views/HomeView.vue';
 import { jwtDecode } from 'jwt-decode';
 
+import { useCookies } from "vue3-cookies";
+
+const { cookies } = useCookies(); // Lấy cookies API
+
 const router = createRouter({
   history: createWebHistory(),  // Cấu hình sử dụng history mode
   routes: [
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
+      meta: { requiresAuth: false},
     },
     {
       path: '/company/signup',
       name: 'register',
-      component: () => import('../views/Register.vue')
+      component: () => import('../views/Register.vue'),
+      meta: { requiresAuth: true, role: 'COMPANY'},
     },
     {
       path: "/payment-result",
       name: "PaymentResult",
-      component: () => import("../views/PaymentResult.vue")
+      component: () => import("../views/PaymentResult.vue"),
+      meta: { requiresAuth: false},
     },
     {
       path: "/company/login",
       name: "login",
-      component: () => import('../views/LoginView.vue')
+      component: () => import('../views/LoginView.vue'),
+      meta: { requiresAuth: false},
     },
     {
       path: "/company/reset-password",
       name: "ResetPassword",
-      component: () => import('@/views/ForgotPassword.vue')
+      component: () => import('@/views/ForgotPassword.vue'),
+      meta: { requiresAuth: false},
     },
     {
       path: '/company/create',
       name: 'CreateCompany',
-      component: () => import('../views/CreateCompanyView.vue')
+      component: () => import('../views/CreateCompanyView.vue'),
+      meta: { requiresAuth: true, role: 'COMPANY'},
     },
     {
       path: "/company",
       name: "Company",
       component: () => import("../views/CompanyView.vue"),
+      meta: { requiresAuth: true, role: 'COMPANY' ,userInfo: null},
       children: [
         {
           path: "profile",
@@ -74,7 +85,6 @@ const router = createRouter({
           props: route => ({ userInfo: route.meta.userInfo })
         },
       ],
-      meta: { userInfo: null } // Dùng meta để lưu userInfo
     }
     ,
     // {
@@ -86,6 +96,7 @@ const router = createRouter({
       path: '/company/events/:eventId',
       name: 'EventDetails',
       component: () => import('../views/EventView/EventDetail.vue'),
+      meta: { requiresAuth: true, role: 'COMPANY'},
       children: [
         {
           path: 'booking',
@@ -106,45 +117,56 @@ const router = createRouter({
       path: '/company/events/all',
       name: 'ListEvents',
       component: () => import('../views/AllEventView.vue'),
+      meta: { requiresAuth: true, role: 'COMPANY'},
     },
     // Catch-all route for 404 - Page Not Found
     {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
-      component: () => import('../views/NotFoundView.vue')
+      component: () => import('../views/NotFoundView.vue'),
+      meta: { requiresAuth: false},
     }
   ]
 });
 
-// Add navigation guard
+
 router.beforeEach((to, from, next) => {
 
   if (to.meta.requiresAuth) {
-    const token = localStorage.getItem('token');
+    console.log('🔒 This route requires authentication');
+
+    const token = cookies.get('token');
+    console.log('📌 Token from cookies:', token);
+
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        const role = decodedToken.role;
+        console.log('🔑 Decoded Token:', decodedToken);
 
-        // If the route requires ROLE_ADMIN and the user is not an admin, redirect to home
-        if (to.path.startsWith('/admin') && role !== 'ROLE_ADMIN') {
-          next({ name: 'home' });
-        } else {
-          // Allow access if the role matches the required role or if no specific role is required
-          next();
+        const userRole = decodedToken.role;
+        console.log('👤 User Role:', userRole);
+
+        if (to.meta.role && to.meta.role !== userRole) {
+          console.warn('⛔ Không đủ quyền, chuyển về home');
+          return next({ name: 'home' });
         }
+
+        return next();
       } catch (error) {
-        // If decoding the token fails, redirect to login
-        next({ name: 'Login' });
+        console.error('⚠️ Token không hợp lệ:', error);
+        Cookies.remove('token'); // Xóa token lỗi
+        return next({ name: 'Login' });
       }
     } else {
-      // If the user is not authenticated, redirect to login
-      next({ name: 'Login' });
+      console.warn('🔴 Không tìm thấy token, chuyển về login');
+      return next({ name: 'Login' });
     }
   } else {
-    // Allow access to routes that don't require authentication
-    next();
+    console.log('✅ Route không yêu cầu xác thực, tiếp tục...');
+    return next();
   }
 });
+
+
 
 export default router;

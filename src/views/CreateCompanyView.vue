@@ -75,12 +75,14 @@
 
 <script>
 import { api } from "../api/Api";
+import { useCookies } from "vue3-cookies";
+const { cookies } = useCookies(); // Lấy cookie API
 export default {
   data() {
     return {
       company: {
         companyName: "",
-        companyMail: sessionStorage.getItem("email") || "",
+        companyMail: cookies.get("email") || "",
         companyPhone: "",
         companyAddress: "",
         logoURL: null,

@@ -1,56 +1,53 @@
 import axios from "axios";
 import { useToast } from "vue-toastification";
+import { useAuthStore } from "@/stores/pina"; // Import store Pinia
 
 const toast = useToast();
-const commonConfig = {
+
+export const api = axios.create({
+    baseURL: 'http://localhost:8080/',
+    withCredentials: true, // 🌟 Cho phép gửi cookie
     headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
     },
-};
-
-export const api = axios.create({
-    baseURL: 'http://localhost:8080/',
-    ...commonConfig
-});
-
-export const setAuthorization = (token) => {
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-}
-
-export const removeAuthorization = () => {
-    delete api.defaults.headers.common['Authorization'];
-}
-api.interceptors.request.use((config) => {
-    console.log('Request Headers:', config.headers);
-    return config;
-}, (error) => {
-    return Promise.reject(error);
 });
 
 
-api.interceptors.response.use((response) => {
-    return response;
-}, (error) => {
-    if (error.response) {
-        const status = error.response.status;
-        const message = error.response.data.message || 'An error occurred';
+// // 🌟 Interceptor request: Tự động gán Authorization nếu token có trong Pinia
+// api.interceptors.request.use((config) => {
+//     const authStore = useAuthStore();
+//     if (authStore.token) {
+//         config.headers.Authorization = `Bearer ${authStore.token}`;
+//     }
+//     console.log('Request Headers:', config.headers);
+//     return config;
+// }, (error) => {
+//     return Promise.reject(error);
+// });
 
-        // Hiển thị thông báo lỗi với Toast
-        if (status === 401) {
-            toast.error(`Unauthorized: ${message}`);
-        } else if (status === 403) {
-            toast.error(`Access Denied: ${message}`);
+// 🚀 Interceptor response: Xử lý lỗi, tự động đăng xuất khi token hết hạn
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const authStore = useAuthStore();
+        if (error.response) {
+            const status = error.response.status;
+            const message = error.response.data?.message || 'An error occurred';
+
+            if (status === 401) {
+                toast.error(`Unauthorized: ${message}`);
+                authStore.logout();
+            } else if (status === 403) {
+                toast.error(`Access Denied: ${message}`);
+            } else {
+                toast.error(`Error ${status}: ${message}`);
+            }
+        } else if (error.request) {
+            toast.error('No response from server. Please check your network.');
         } else {
-            toast.error(`Error ${status}: ${message}`);
+            toast.error(`Error: ${error.message}`);
         }
-    } else if (error.request) {
-        // Không có phản hồi từ server
-        toast.error('No response from server. Please check your network.');
-    } else {
-        // Các lỗi khác
-        toast.error(`Error: ${error.message}`);
+        return Promise.reject(error);
     }
-
-    return Promise.reject(error);
-});
+);

@@ -49,6 +49,8 @@
 
 <script>
 import { api } from "../api/Api";
+import { useCookies } from "vue3-cookies";
+const { cookies } = useCookies(); // Lấy cookie API
 
 export default {
   name: "User",
@@ -106,9 +108,12 @@ export default {
         const res = await api.get(`/companies/${this.user.id}`);
         console.log(res.data);
         this.userInfo = res.data.data;
-        this.email = sessionStorage.getItem("email");
+        this.email = cookies.get("email");
         this.$route.meta.userInfo = this.userInfo;
         sessionStorage.setItem("companyName", this.userInfo.companyName);
+
+        cookies.set("companyName", this.userInfo.companyName, 900); // 900 giây = 15 phút
+
       } catch (error) {
         if (error.response?.status === 404) {
           this.$toast.error("Chưa có thông tin công ty, hãy tạo mới!");

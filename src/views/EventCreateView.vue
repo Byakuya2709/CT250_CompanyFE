@@ -312,7 +312,8 @@ import { eventStatuses } from "../composable/eventStatus";
 import { api } from "../api/Api";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.css";
-
+import { useCookies } from "vue3-cookies";
+const { cookies } = useCookies(); // Lấy cookie API
 export default {
   components: {
     Multiselect,
@@ -333,8 +334,14 @@ export default {
         eventCapacity: 0,
         eventStatus: "",
         eventListArtist: [],
-        eventCompanyId: sessionStorage.getItem("email") || "Company",
-        eventCompanyName: sessionStorage.getItem("companyName") || "Company",
+        eventCompanyId:
+          sessionStorage.getItem("email") ||
+          cookies.get("email") ||
+          "Company",
+        eventCompanyName:
+          sessionStorage.getItem("companyName") ||
+          cookies.get("companyName") ||
+          "Company",
         eventPrice: 0,
         eventListImgURL: [],
       },

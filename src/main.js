@@ -2,7 +2,7 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
-
+const app = createApp(App);
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap";
 
@@ -15,10 +15,10 @@ library.add(fas, far, fab);
 dom.watch();
 import storePlugin from './plugins/store';
 import { jwtDecode } from 'jwt-decode';  // Sử dụng thư viện jwt-decode
-import { removeAuthorization, setAuthorization } from "./api/Api";
 
 import VTooltip from "v-tooltip";
-
+import { useCookies } from "vue3-cookies";
+const { cookies } = useCookies(); // Lấy cookie API
 
 import {
   Chart as ChartJS,
@@ -39,32 +39,26 @@ import "vue-toastification/dist/index.css";
 
 import ToastPlugin from '@/plugins/toast';
 
-// Kiểm tra token và xử lý khi ứng dụng khởi tạo
-const app = createApp(App);
-const token = localStorage.getItem('token');
-
+const token = cookies.get("token")
 if (token) {
   try {
     const decodedToken = jwtDecode(token);
     const currentTime = Math.floor(Date.now() / 1000); // Thời gian hiện tại (tính bằng giây)
 
-    // Kiểm tra xem token đã hết hạn chưa
+    // 🔥 Kiểm tra token có hết hạn không
     if (decodedToken.exp < currentTime) {
-      console.log("Token has expired. Logging out...");
-      localStorage.removeItem('token');
-      removeAuthorization();
-      router.push('/company/login'); // Redirect to login page
-    } else {
-      setAuthorization(token); // Set the authorization header
+      cookies.remove("token"); // Xóa token khỏi cookie
+
+      router.push("/company/login"); // Chuyển hướng về trang đăng nhập
     }
   } catch (error) {
-    console.error("Error decoding token:", error);
-    localStorage.removeItem('token');
-    localStorage.removeItem('email');
-    removeAuthorization();
+    console.error("Lỗi giải mã token:", error);
+    cookies.remove("token"); // Xóa cookie nếu lỗi
+    cookies.remove("email");
+    router.push("/company/login"); // Chuyển hướng về login nếu token lỗi
   }
 } else {
-  router.push('/company/login');
+  router.push("/company/login"); // Nếu không có token, điều hướng về login
 }
 
 app.use(Toast, {

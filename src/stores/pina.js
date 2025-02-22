@@ -31,9 +31,9 @@ export const useAuthStore = defineStore("auth", {
         });
       }
     },
-    async login(user) {
+    async login(user,rolelogin) {
       try {
-        const response = await api.post("/auth/login", user);
+        const response = await api.post(`/auth/${rolelogin}/login`, user);
         const res = response.data;
         this.token = res.data.token;
         const decodedToken = jwtDecode(this.token);
@@ -53,7 +53,7 @@ export const useAuthStore = defineStore("auth", {
         
         sessionStorage.setItem('email', decodedToken.sub);
         return { loginResponse: response, role: this.role };
-      } catch (err) {F
+      } catch (err) {
         cookies.remove("token");
         this.token = null;
         this.user = { id: null, email: "" };
@@ -70,13 +70,13 @@ export const useAuthStore = defineStore("auth", {
       cookies.remove("token");
       cookies.remove("email");
       toast.info("Đang đăng xuất...");
-      setTimeout(() => router.replace("/company/login"), 1500);
+      setTimeout(() => router.replace("/"), 1500);
     },
   },
 
   getters: {
     isAuthenticated: (state) => !!state.token,
-    isAdmin: (state) => state.role && state.role.replace('ROLE_', '') === 'ADMIN',
+    isAdmin: (state) => state.role === 'ADMIN',
     userId: (state) => state.user.id,
     email: (state) => state.user.email,
   },

@@ -6,7 +6,7 @@
     >
       <div class="container-fluid">
         <router-link class="logo-brand" to="/">
-          <span><p>COMPANY</p></span>
+          <span><p> {{ isAdmin ? "ADMIN" : "COMPANY" }}</p></span>
         </router-link>
         <button
           class="navbar-toggler"
@@ -26,8 +26,9 @@
         >
           <div class="offcanvas-header">
             <h5 class="offcanvas-title logo-brand" id="offcanvasNavbarLabel">
-              COMPANY
+              {{ isAdmin ? "ADMIN" : "COMPANY" }}
             </h5>
+
             <button
               type="button"
               class="btn-close btn-close-white"
@@ -81,10 +82,16 @@
                    >
                  </div>
                </li> -->
-              <li class="menu-item">
-                <div class="dropdown">
+              <li v-if="isAuthenticated" class="menu-item">
+                <div v-if="isAdmin" class="dropdown">
+                  <router-link 
+                    class="menu-link link-active"
+                    to="/admin"
+                    >Trang Quản Lý ADMIN</router-link
+                  >
+                </div>
+                <div v-else class="dropdown">
                   <router-link
-                    v-if="isAuthenticated"
                     class="menu-link link-active"
                     to="/company"
                     >Trang Quản Lý</router-link
@@ -105,6 +112,13 @@
                 <div class="dropdown">
                   <router-link class="menu-link link-active" to="/company/login"
                     >Đăng nhập</router-link
+                  >
+                </div>
+              </li>
+              <li v-if="!isAuthenticated" class="menu-item">
+                <div class="dropdown">
+                  <router-link class="menu-link link-active" to="/admin/login"
+                    >Đăng nhập ADMIN</router-link
                   >
                 </div>
               </li>
@@ -159,6 +173,7 @@ export default {
     const router = useRouter();
 
     const isAuthenticated = computed(() => authStore.isAuthenticated);
+    const isAdmin = computed(() => authStore.isAdmin);
 
     const logout = async () => {
       try {
@@ -170,6 +185,7 @@ export default {
 
     return {
       isAuthenticated,
+      isAdmin,
       logout,
     };
   },

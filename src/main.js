@@ -49,7 +49,7 @@ if (token) {
     if (decodedToken.exp < currentTime) {
       cookies.remove("token"); // Xóa token khỏi cookie
 
-      router.push("/company/login"); // Chuyển hướng về trang đăng nhập
+      router.push("/"); // Chuyển hướng về trang đăng nhập
     }
   } catch (error) {
     console.error("Lỗi giải mã token:", error);
@@ -58,7 +58,7 @@ if (token) {
     router.push("/company/login"); // Chuyển hướng về login nếu token lỗi
   }
 } else {
-  router.push("/company/login"); // Nếu không có token, điều hướng về login
+  router.push("/"); // Nếu không có token, điều hướng về login
 }
 
 app.use(Toast, {

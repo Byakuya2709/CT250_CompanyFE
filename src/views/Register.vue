@@ -155,7 +155,7 @@ export default {
             };
 
             const authStore = useAuthStore();
-            const { loginResponse, role } = await authStore.login(login);
+            const { loginResponse, role } = await authStore.login(login,'company');
             console.log(loginResponse);
             console.log(role);
 

@@ -19,7 +19,7 @@ const router = createRouter({
       path: "/company/signup",
       name: "register",
       component: () => import("../views/Register.vue"),
-      meta: { requiresAuth: true, role: "COMPANY" },
+      meta: { requiresAuth: false },
     },
     {
       path: "/payment-result",
@@ -56,6 +56,13 @@ const router = createRouter({
       name: "Admin",
       component: () => import("../views/AdminView/Admin.vue"),
       meta: { requiresAuth: true, role: "ADMIN" },
+      children:[
+        {
+          path: "accounts",
+          name: "AccountManager",
+          component: () => import("@/views/AdminView/AccountManager.vue"),
+        },
+      ]
     },
 
     {

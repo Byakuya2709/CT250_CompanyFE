@@ -83,6 +83,9 @@
 </template>
 
 <style scoped>
+p{
+  color: black;
+}
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -285,6 +288,7 @@ export default {
           params: { day: this.day.day },
         });
         this.zones = response.data.data;
+        console.log(response)
       } catch (error) {
         toast.error(
           error.response?.data?.message || "Không thể kết nối đến hệ thống.",
@@ -332,6 +336,7 @@ export default {
         { length: this.selectedZone.zoneCapacity },
         (_, i) => `${this.selectedZone.zoneName}_${i + 1}`
       );
+      this.selectedSeats = [];
     },
     toggleSeat(seat) {
       if (
@@ -344,6 +349,7 @@ export default {
       if (this.selectedSeats.includes(seat)) {
         this.selectedSeats = [];
       } else {
+
         this.selectedSeats = [seat]; // Chỉ chọn 1 ghế
       }
     },

@@ -108,11 +108,6 @@ export default {
         this.event.eventPrice * this.selectedZone.zoneRate * this.event.totalDay
       ); // Chuyển thành số nguyên
     },
-    calculatedPrice() {
-      return this.selectedZone
-        ? this.event.eventPrice * this.selectedZone.zoneRate
-        : 0;
-    },
     formattedPrice() {
       return (
         this.event.eventPrice *
@@ -200,6 +195,7 @@ export default {
         { length: this.selectedZone.zoneCapacity },
         (_, i) => `${this.selectedZone.zoneName}_${i + 1}`
       );
+      this.selectedSeats = []
       console.log(this.availableSeats);
     },
     toggleSeat(seat) {

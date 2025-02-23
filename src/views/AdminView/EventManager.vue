@@ -1,6 +1,6 @@
 <template>
   <div class="eventList">
-    <h1>Event List</h1>
+    <h1>Quản lý Sự Kiện</h1>
 
     <div v-if="loading">Loading events...</div>
 
@@ -17,11 +17,14 @@
           <p class="event-description">{{ event.eventDescription }}</p>
 
           <p>
-            <strong>Start Date:</strong> {{ formatDate(event.eventStartDate) }}
+            <strong>Ngày Bắt đầu:</strong>
+            {{ formatDate(event.eventStartDate) }}
           </p>
-          <p><strong>End Date:</strong> {{ formatDate(event.eventEndDate) }}</p>
-          <p><strong>Price:</strong> {{ event.eventPrice }} VND</p>
-
+          <p>
+            <strong>Ngày Kết Thúc:</strong> {{ formatDate(event.eventEndDate) }}
+          </p>
+          <p><strong>Giá:</strong> {{ event.eventPrice }} VND</p>
+          <p><strong>Trạng thái:</strong> {{ event.eventStatus }} VND</p>
           <!-- Display Stars -->
           <div class="stars">
             <span
@@ -49,21 +52,15 @@
       </div>
 
       <!-- Pagination Controls -->
-      <div class="pagination">
-        <button
-          @click="changePage(currentPage - 1)"
-          :disabled="currentPage === 0"
-        >
-          Previous
-        </button>
-        <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
-        <button
-          @click="changePage(currentPage + 1)"
-          :disabled="currentPage === totalPages - 1"
-        >
-          Next
-        </button>
-      </div>
+      <div class="d-flex justify-content-between align-items-center mt-4">
+      <button @click="prevPage" :disabled="currentPage === 1" class="btn btn-outline-primary">
+        <i class="fas fa-chevron-left"></i> Trang trước
+      </button>
+      <span class="fw-bold">Trang {{ currentPage }} / {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="currentPage >= totalPages" class="btn btn-outline-primary">
+        Trang sau <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
     </div>
 
     <div v-if="events.length === 0">No events found.</div>
@@ -71,20 +68,28 @@
 </template>
 
 <script>
-import { api } from "../api/Api";
+import { api } from "@/api/Api";
 
 export default {
   data() {
     return {
       events: [], // Store events data
       loading: false, // Loading flag
-      currentPage: 0, // Current page number
-      totalPages: 1, // Total number of pages
-      pageSize: 10, // Number of items per page
+      currentPage: 1,
+      itemsPerPage: 10,
+      totalPages: 1,
+      totalElements: 0,
     };
   },
   mounted() {
     this.getEvents();
+  },
+  computed: {
+    paginatedAccounts() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.accounts.slice(start, end);
+    },
   },
   methods: {
     getPosterImage(imgURLs) {
@@ -96,20 +101,23 @@ export default {
       this.loading = true;
       try {
         const response = await api.get(
-          `/events/get-all/Upcoming/?page=${this.currentPage}&size=${this.pageSize}`
+          `/events?page=${this.currentPage - 1}&size=${this.itemsPerPage}`
         );
 
         if (response.data.status === "OK") {
           this.events = response.data.data.content; // Store events
-          console.log(this.events);
           this.totalPages = response.data.data.totalPages; // Update total pages
         } else {
-          this.$toast.error( error.response?.data?.message ||"Error fetching events:");
+          this.$toast.error(
+            error.response?.data?.message || "Error fetching events:"
+          );
           console.error("Error fetching events:", response.data.message);
         }
       } catch (error) {
         console.error("Error fetching events:", error);
-        this.$toast.error( error.response?.data?.message ||"Error fetching events:");
+        this.$toast.error(
+          error.response?.data?.message || "Error fetching events:"
+        );
       } finally {
         this.loading = false;
       }
@@ -159,7 +167,20 @@ export default {
       };
     },
     goToEventDetails(eventId) {
-      this.$router.push({ name: "EventDetails", params: { eventId: eventId } });
+    
+    },
+
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.getEvents();
+      }
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        this.getEvents();
+      }
     },
   },
 };
@@ -193,7 +214,14 @@ body {
   transform: translateY(-10px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
-
+.event-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Hiển thị tối đa 3 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Hiển thị dấu "..." nếu quá dài */
+  max-width: 100%;
+}
 .event h3 {
   font-size: 1.6rem;
   font-weight: 600;

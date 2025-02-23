@@ -49,7 +49,7 @@
         <label class="block font-medium">Giá mới:</label>
         <input
           type="number"
-          v-model="formData.newPrice"
+          v-model="formData.subFormdata"
           class="w-full p-2 border rounded"
           min="0"
           step="1000"
@@ -120,7 +120,7 @@ export default {
         subContent: "",
         subCompanyId: this.$route.params.companyId,
         subCompanyName: this.userInfo?.companyName,
-        newPrice: null, // Giá mới khi cập nhật
+        subFormdata: 0, // Giá mới khi cập nhật
       },
       minDeadline: "",
       deadlineError: "",
@@ -165,7 +165,7 @@ export default {
     },
     validatePrice() {
       if (this.formData.subSubject === "Yêu Cầu Cập Nhật Giá Sự Kiện") {
-        if (!this.formData.newPrice || this.formData.newPrice <= 0) {
+        if (!this.formData.subFormdata || this.formData.subFormdata <= 0) {
           this.priceError = "Giá mới phải lớn hơn 0.";
         } else {
           this.priceError = "";
@@ -178,7 +178,7 @@ export default {
 
       // Reset giá khi chuyển tiêu đề khác
       if (this.formData.subSubject !== "Yêu Cầu Cập Nhật Giá Sự Kiện") {
-        this.formData.newPrice = null;
+        this.formData.subFormdata = 0;
         this.priceError = "";
       }
     },
@@ -189,16 +189,12 @@ export default {
 
       try {
         const payload = { ...this.formData };
-
-        // // Nếu không phải cập nhật giá sự kiện, xóa newPrice khỏi payload
-        // if (this.formData.subSubject !== "Yêu Cầu Cập Nhật Giá Sự Kiện") {
-        //   delete payload.newPrice;
-        // }
         console.log(payload);
-        // const response = await api.post(
-        //   `submissions/${this.$route.params.eventId}/create`,
-        //   payload
-        // );
+
+        const response = await api.post(
+          `submissions/${this.$route.params.eventId}/create`,
+          payload
+        );
         this.$toast.success(response.data.message);
       } catch (error) {
         this.$toast.error(error.message);

@@ -5,7 +5,6 @@ import router from './router';
 const app = createApp(App);
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap";
-
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { fas } from '@fortawesome/free-solid-svg-icons';
@@ -61,6 +60,7 @@ if (token) {
   router.push("/"); // Nếu không có token, điều hướng về login
 }
 
+app.use(VTooltip);
 app.use(Toast, {
   position: "top-right",
   timeout: 4000,
@@ -68,7 +68,6 @@ app.use(Toast, {
 });
 import VueKonva from 'vue-konva';
 app.use(VueKonva)
-app.use(VTooltip);
 app.use(ToastPlugin);
 app.use(createPinia());
 app.use(router);

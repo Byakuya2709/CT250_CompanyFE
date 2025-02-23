@@ -5,15 +5,28 @@
       <table class="table table-bordered table-hover text-center">
         <thead class="table-primary">
           <tr>
+            <th>ID</th>
             <th>Email</th>
             <th>Loại</th>
             <th>Trạng thái</th>
-            <th>ID</th>
+            
             <th>Hành động</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="account in accounts" :key="account.id">
+            <td>
+              {{
+                account.showFullId ? account.id : account.id.slice(0, 6) + "..."
+              }}
+              <button
+                @click="toggleIdVisibility(account)"
+                class="btn-info ms-2"
+              >
+                <i class="fas fa-eye"></i>
+                {{ account.showFullId ? "Ẩn" : "Hiện" }}
+              </button>
+            </td>
             <td>{{ account.email }}</td>
             <td>{{ account.type }}</td>
             <td>
@@ -26,18 +39,7 @@
                 {{ account.status }}
               </span>
             </td>
-            <td>
-              {{
-                account.showFullId ? account.id : account.id.slice(0, 6) + "..."
-              }}
-              <button
-                @click="toggleIdVisibility(account)"
-                class="btn btn-sm btn-info ms-2"
-              >
-                <i class="fas fa-eye"></i>
-                {{ account.showFullId ? "Ẩn" : "Hiện" }}
-              </button>
-            </td>
+          
             <td>
               <button
                 v-if="account.status === 'ACTIVE'"
@@ -63,23 +65,15 @@
           </tr>
         </tbody>
       </table>
-      <div class="d-flex justify-content-between mt-3">
-        <button
-          @click="prevPage"
-          :disabled="currentPage === 1"
-          class="btn btn-primary"
-        >
-          Trang trước
-        </button>
-        <span>Trang {{ currentPage }} / {{ totalPages }}</span>
-        <button
-          @click="nextPage"
-          :disabled="currentPage >= totalPages"
-          class="btn btn-primary"
-        >
-          Trang sau
-        </button>
-      </div>
+      <div class="d-flex justify-content-between align-items-center mt-4">
+      <button @click="prevPage" :disabled="currentPage === 1" class="btn btn-outline-primary">
+        <i class="fas fa-chevron-left"></i> Trang trước
+      </button>
+      <span class="fw-bold">Trang {{ currentPage }} / {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="currentPage >= totalPages" class="btn btn-outline-primary">
+        Trang sau <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
     </div>
   </div>
 </template>

@@ -62,6 +62,21 @@ const router = createRouter({
           name: "AccountManager",
           component: () => import("@/views/AdminView/AccountManager.vue"),
         },
+        {
+          path: "companies",
+          name: "CompanyManager",
+          component: () => import("@/views/AdminView/CompanyManager.vue"),
+        },
+        {
+          path: "events",
+          name: "EventManager",
+          component: () => import("@/views/AdminView/EventManager.vue"),
+        },
+        {
+          path: "submissions",
+          name: "SubmissionManager",
+          component: () => import("@/views/AdminView/SubmissionManager.vue"),
+        },
       ]
     },
 

@@ -38,7 +38,7 @@
       </div>
     </div>
 
-    <div class="container col-10" style="margin-left: 10px">
+    <div class="container router-view">
       <RouterView/>
     </div>
   </div>
@@ -83,12 +83,12 @@ export default {
           iconPath:
             "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
         },
-        // {
-        //   name: "Quản Lý Công Ty",
-        //   path: `/admin/companys`,
-        //   iconPath:
-        //     "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
-        // },
+        {
+          name: "Quản Lý Công Ty",
+          path: `/admin/companies`,
+          iconPath:
+            "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
+        },
         {
           name: "Quản Lý Người Dùng",
           path: `/admin/users`,
@@ -115,7 +115,10 @@ export default {
   border-right: 1px solid #dee2e6;
   width: 250px;
 }
-
+.router-view{
+  max-width: 100%;
+  margin: auto;
+}
 .nav-link {
   display: flex;
   align-items: center;

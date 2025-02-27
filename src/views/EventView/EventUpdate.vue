@@ -192,7 +192,7 @@ export default {
         console.log(payload);
 
         const response = await api.post(
-          `submissions/${this.$route.params.eventId}/create`,
+          `submissions/${this.$route.params.eventId}`,
           payload
         );
         this.$toast.success(response.data.message);

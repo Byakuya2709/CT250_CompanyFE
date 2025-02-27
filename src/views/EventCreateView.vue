@@ -335,9 +335,7 @@ export default {
         eventStatus: "",
         eventListArtist: [],
         eventCompanyId:
-          sessionStorage.getItem("email") ||
-          cookies.get("email") ||
-          "Company",
+          sessionStorage.getItem("email") || cookies.get("email") || "Company",
         eventCompanyName:
           sessionStorage.getItem("companyName") ||
           cookies.get("companyName") ||
@@ -452,7 +450,7 @@ export default {
       console.log(newEvent);
       this.event.eventListImgURL = [];
       try {
-        const response = await api.post("/events/create", newEvent);
+        const response = await api.post("/events", newEvent);
         console.log(response);
         this.$toast.success(response.data.message);
       } catch (error) {

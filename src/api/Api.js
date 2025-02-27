@@ -37,7 +37,6 @@ api.interceptors.response.use(
 
             if (status === 401) {
                 toast.error(`Unauthorized: ${message}`);
-                authStore.logout();
             } else if (status === 403) {
                 toast.error(`Access Denied: ${message}`);
             } else {

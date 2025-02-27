@@ -56,7 +56,7 @@ const router = createRouter({
       name: "Admin",
       component: () => import("../views/AdminView/Admin.vue"),
       meta: { requiresAuth: true, role: "ADMIN" },
-      children:[
+      children: [
         {
           path: "accounts",
           name: "AccountManager",
@@ -96,6 +96,11 @@ const router = createRouter({
           path: ":companyId/create/event",
           name: "Events",
           component: () => import("../views/EventCreateView.vue"),
+        },
+        {
+          path: ":companyId/tickets",
+          name: "Events",
+          component: () => import("../views/EventView/BoughtTicket.vue"),
         },
         {
           path: ":companyId/create/event/:eventId/submission",

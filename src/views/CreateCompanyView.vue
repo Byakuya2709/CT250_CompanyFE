@@ -182,7 +182,7 @@ export default {
     },
     async createCompany() {
       try {
-        const response = await api.post("/companies/create", this.company, {
+        const response = await api.post("/companies", this.company, {
           params: { accountId: this.$route.query.accountId },
         });
         this.$toast.success(response.data.message);

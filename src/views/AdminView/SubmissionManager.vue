@@ -64,13 +64,9 @@
               <button
                 v-if="submission.subStatus !== 'PENDING'"
                 disabled
-                class="btn btn-secondary flex-fill"
+                class="btn btn-warning flex-fill"
               >
-                {{
-                  submission.subStatus === "APPROVED"
-                    ? "Đã duyệt"
-                    : "Đã từ chối"
-                }}
+                {{ submission.subStatus }}
               </button>
             </div>
           </div>
@@ -82,9 +78,12 @@
     <div
       v-if="hoveredSubmission"
       class="hover-card shadow p-3 bg-white rounded"
-      :style="{ top: hoverPosition.top + 'px', left: hoverPosition.left + 'px' }"
+      :style="{
+        top: hoverPosition.top + 'px',
+        left: hoverPosition.left + 'px',
+      }"
     >
-    <h4>Sự kiện</h4>
+      <h4>Sự kiện</h4>
       <h5 class="text-primary fw-bold">{{ hoveredSubmission.eventTitle }}</h5>
       <p><strong>Id:</strong> {{ hoveredSubmission.eventId }}</p>
       <p><strong>Trạng thái:</strong> {{ hoveredSubmission.eventStatus }}</p>
@@ -139,7 +138,7 @@ export default {
       totalPages: 1,
 
       hoveredSubmission: null,
-      hoverPosition: { top: 0, left: 0 }
+      hoverPosition: { top: 0, left: 0 },
     };
   },
   methods: {
@@ -165,7 +164,7 @@ export default {
     },
     async pass(submission) {
       try {
-        await api.put(
+        const res = await api.put(
           `/submissions/${submission.submissionId}/confirm/approved`
         );
         this.$toast.success(res.data.message || "Đã duyệt đơn!");

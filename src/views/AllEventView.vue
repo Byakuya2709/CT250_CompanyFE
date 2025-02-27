@@ -96,7 +96,7 @@ export default {
       this.loading = true;
       try {
         const response = await api.get(
-          `/events/get-all/Upcoming/?page=${this.currentPage}&size=${this.pageSize}`
+          `/events/Upcoming/?page=${this.currentPage}&size=${this.pageSize}`
         );
 
         if (response.data.status === "OK") {
@@ -104,12 +104,16 @@ export default {
           console.log(this.events);
           this.totalPages = response.data.data.totalPages; // Update total pages
         } else {
-          this.$toast.error( error.response?.data?.message ||"Error fetching events:");
+          this.$toast.error(
+            error.response?.data?.message || "Error fetching events:"
+          );
           console.error("Error fetching events:", response.data.message);
         }
       } catch (error) {
         console.error("Error fetching events:", error);
-        this.$toast.error( error.response?.data?.message ||"Error fetching events:");
+        this.$toast.error(
+          error.response?.data?.message || "Error fetching events:"
+        );
       } finally {
         this.loading = false;
       }

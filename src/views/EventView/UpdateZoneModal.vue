@@ -90,7 +90,7 @@ export default {
 
       try {
         const response = await api.patch(
-          `/events/update-zone/${this.eventId}`,
+          `/events/zones/${this.eventId}`,
           updatedData
         );
         this.$toast.success(response.data.message);

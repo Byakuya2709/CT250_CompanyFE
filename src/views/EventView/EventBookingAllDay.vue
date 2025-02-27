@@ -195,7 +195,7 @@ export default {
         { length: this.selectedZone.zoneCapacity },
         (_, i) => `${this.selectedZone.zoneName}_${i + 1}`
       );
-      this.selectedSeats = []
+      this.selectedSeats = [];
       console.log(this.availableSeats);
     },
     toggleSeat(seat) {
@@ -239,7 +239,7 @@ export default {
             amount: this.amountInt,
           };
 
-          const res = await api.post(`/payment/createPayment`, body, {
+          const res = await api.post(`/payment`, body, {
             params: params,
           });
           this.paymentUrl = res.data; // Lưu vào biến

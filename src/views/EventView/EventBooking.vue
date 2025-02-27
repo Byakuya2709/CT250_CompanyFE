@@ -69,7 +69,6 @@
       </button>
       <button class="close-btn" @click="$emit('close')">Đóng</button>
 
-
       <a
         v-if="paymentUrl"
         :href="paymentUrl"
@@ -83,7 +82,7 @@
 </template>
 
 <style scoped>
-p{
+p {
   color: black;
 }
 .modal-overlay {
@@ -255,7 +254,7 @@ export default {
       zones: [],
       selectedZone: null,
       availableSeats: [],
-      paymentUrl:null
+      paymentUrl: null,
     };
   },
   computed: {
@@ -288,7 +287,7 @@ export default {
           params: { day: this.day.day },
         });
         this.zones = response.data.data;
-        console.log(response)
+        console.log(response);
       } catch (error) {
         toast.error(
           error.response?.data?.message || "Không thể kết nối đến hệ thống.",
@@ -349,7 +348,6 @@ export default {
       if (this.selectedSeats.includes(seat)) {
         this.selectedSeats = [];
       } else {
-
         this.selectedSeats = [seat]; // Chỉ chọn 1 ghế
       }
     },
@@ -388,7 +386,7 @@ export default {
             amount: this.amountInt,
           };
 
-          const res = await api.post(`/payment/createPayment`, body, {
+          const res = await api.post(`/payment`, body, {
             params: params,
           });
           this.paymentUrl = res.data; // Lưu vào biến

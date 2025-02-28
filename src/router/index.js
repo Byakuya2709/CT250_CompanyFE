@@ -94,7 +94,7 @@ const router = createRouter({
         },
         {
           path: ":companyId/create/event",
-          name: "Events",
+          name: "EventsCreate",
           component: () => import("../views/EventCreateView.vue"),
         },
         {

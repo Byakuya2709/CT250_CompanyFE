@@ -473,7 +473,7 @@ export default {
     },
 
     handleInput() {
-      this.event.eventTagsString = this.event.eventTags.join("_");
+      this.event.eventTagsString = this.event.eventTags.join("|");
     },
 
     handlePosterChange(event) {

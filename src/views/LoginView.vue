@@ -116,13 +116,13 @@ export default {
         try {
           const user = { email: this.email, password: this.password };
           const authStore = useAuthStore();
-          const { loginResponse } = await authStore.login(user,'company');
+          const { loginResponse } = await authStore.login(user, "company");
           console.log(loginResponse);
           if (loginResponse.status === 200) {
             this.failedAttempts = 0;
             sessionStorage.removeItem("failedAttempts");
             this.$toast.success(loginResponse.data.message);
-            this.$router.push({ name: "Company" });
+            this.$router.replace({ name: "Company" });
           } else {
             this.handleFailedAttempt();
           }

@@ -87,14 +87,14 @@
                   <router-link 
                     class="menu-link link-active"
                     to="/admin"
-                    >Trang Quản Lý ADMIN</router-link
+                    >ADMIN Dashboard</router-link
                   >
                 </div>
                 <div v-else class="dropdown">
                   <router-link
                     class="menu-link link-active"
                     to="/company"
-                    >Trang Quản Lý</router-link
+                    >Dashboard</router-link
                   >
                 </div>
               </li>

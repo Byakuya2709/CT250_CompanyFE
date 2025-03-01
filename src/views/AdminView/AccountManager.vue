@@ -46,14 +46,14 @@
                 @click="blockAccount(account)"
                 class="btn btn-warning btn-sm me-2"
               >
-                <i class="fas fa-ban"></i> Block
+                <i class="fas fa-ban"></i> Khóa
               </button>
               <button
                 v-if="account.status === 'INACTIVE'"
                 @click="unblockAccount(account)"
                 class="btn btn-success btn-sm me-2"
               >
-                <i class="fas fa-unlock"></i> Unblock
+                <i class="fas fa-unlock"></i> Mở Khóa
               </button>
               <button
                 @click="deleteAccount(account.id)"
@@ -105,7 +105,7 @@ export default {
     return {
       accounts: [],
       currentPage: 1,
-      itemsPerPage: 2,
+      itemsPerPage: 10,
       totalPages: 1,
       totalElements: 0,
     };

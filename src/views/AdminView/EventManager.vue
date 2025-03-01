@@ -23,8 +23,8 @@
           <p>
             <strong>Ngày Kết Thúc:</strong> {{ formatDate(event.eventEndDate) }}
           </p>
-          <p><strong>Giá:</strong> {{ event.eventPrice }} VND</p>
-          <p><strong>Trạng thái:</strong> {{ event.eventStatus }} VND</p>
+          <p><strong>Giá:</strong> {{ formatCurrency(event.eventPrice) }}</p>
+          <p><strong>Trạng thái:</strong> {{ event.eventStatus }}</p>
           <!-- Display Stars -->
           <div class="stars">
             <span
@@ -69,7 +69,7 @@
 
 <script>
 import { api } from "@/api/Api";
-
+import {formatCurrency } from "@/composable/format"
 export default {
   data() {
     return {
@@ -92,6 +92,7 @@ export default {
     },
   },
   methods: {
+    formatCurrency,
     getPosterImage(imgURLs) {
       // Tìm ảnh có tên poster.jpg, nếu không tìm thấy, trả về phần tử đầu tiên trong mảng
       return imgURLs.find((url) => url.includes("poster.jpg")) || imgURLs[0];

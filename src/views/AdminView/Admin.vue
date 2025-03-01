@@ -13,7 +13,7 @@
               class="avatar"
             />
             <div class="ms-3">
-              <p class="user-name">{{this.email }}</p>
+              <p class="user-name">{{ this.email }}</p>
               <p class="user-role" v-if="role">Vai trò: {{ role }}</p>
             </div>
           </div>
@@ -39,7 +39,7 @@
     </div>
 
     <div class="container router-view">
-      <RouterView/>
+      <RouterView />
     </div>
   </div>
 </template>
@@ -64,7 +64,6 @@ export default {
     },
     navItems() {
       return [
-       
         // {
         //   name: "Quản Lý Vé Sự Kiện",
         //   path: "/admin/tickets",
@@ -101,8 +100,12 @@ export default {
           iconPath:
             "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
         },
-        
-       
+        {
+          name: "Quản Lý Bài Viết/Bình Luận",
+          path: `/admin/blog`,
+          iconPath:
+            "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
+        },
       ];
     },
   },
@@ -115,7 +118,7 @@ export default {
   border-right: 1px solid #dee2e6;
   width: 250px;
 }
-.router-view{
+.router-view {
   max-width: 100%;
   margin: auto;
 }

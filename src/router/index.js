@@ -58,6 +58,12 @@ const router = createRouter({
       meta: { requiresAuth: true, role: "ADMIN" },
       children: [
         {
+          path: "",
+          alias: ['dashboard'],
+          name: "AdminDashboard",
+          component: () => import("../views/AdminView/DashBoard.vue"),
+        },
+        {
           path: "accounts",
           name: "AccountManager",
           component: () => import("@/views/AdminView/AccountManager.vue"),
@@ -86,6 +92,7 @@ const router = createRouter({
       component: () => import("../views/CompanyView.vue"),
       meta: { requiresAuth: true, role: "COMPANY", userInfo: null },
       children: [
+
         {
           path: "profile",
           name: "Profile",

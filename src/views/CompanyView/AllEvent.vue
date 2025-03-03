@@ -166,7 +166,7 @@ export default {
       };
     },
     goToEventDetails(eventId) {
-    
+      this.$router.push({ path: `/company/events/${eventId}` });
     },
 
     prevPage() {

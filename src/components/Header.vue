@@ -31,6 +31,9 @@
         <li v-if="!isAuthenticated">
           <router-link class="hover:text-blue-400" to="/admin/login">Đăng nhập ADMIN</router-link>
         </li>
+        <li>
+            <router-link class="hover:text-blue-400" to="/about">About</router-link>
+          </li>
         <li v-if="isAuthenticated">
           <a class="hover:text-red-400 cursor-pointer" @click.prevent="logout">Đăng xuất</a>
         </li>
@@ -67,6 +70,9 @@
           </li>
           <li v-if="!isAuthenticated">
             <router-link class="hover:text-blue-400" to="/admin/login">Đăng nhập ADMIN</router-link>
+          </li>
+          <li>
+            <router-link class="hover:text-blue-400" to="/about">About</router-link>
           </li>
           <li v-if="isAuthenticated">
             <a class="hover:text-red-400 cursor-pointer" @click.prevent="logout">Đăng xuất</a>

@@ -66,23 +66,24 @@
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong
-                ><i class="fas fa-money-bill-wave text-success"></i>
-                Giá gốc:</strong
+                ><i class="fas fa-money-bill-wave text-success"></i> Giá
+                gốc:</strong
               >
-              <span class="fw-semibold text-success"
-                >{{ formatCurrency(event.eventPrice) }}</span
-              >
+              <span class="fw-semibold text-success">{{
+                formatCurrency(event.eventPrice)
+              }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong
-                ><i class="fas fa-map-marker-alt text-info"></i>
-                Địa chỉ tổ chức:</strong
+                ><i class="fas fa-map-marker-alt text-info"></i> Địa chỉ tổ
+                chức:</strong
               >
               <span>{{ event.eventAddress }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong
-                ><i class="fas fa-users text-primary"></i> Sức chứa (tối đa):</strong
+                ><i class="fas fa-users text-primary"></i> Sức chứa (tối
+                đa):</strong
               >
               <span class="fw-semibold text-primary"
                 >{{ event.eventCapacity }} người</span
@@ -90,8 +91,8 @@
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong
-                ><i class="fas fa-check-circle text-secondary"></i>
-                Trạng thái:</strong
+                ><i class="fas fa-check-circle text-secondary"></i> Trạng
+                thái:</strong
               >
               <span class="fw-bold">{{ event.eventStatus }}</span>
             </li>
@@ -379,7 +380,9 @@ export default {
     },
     // Cho phép cập nhật Zone nếu sự kiện cách hiện tại hơn 7 ngày
     canUpdateZone() {
-      if (!this.event || !this.event.eventStartDate) return false;
+      if (!this.event || !this.event.eventStartDate || this.event.eventStatus === "CANCELLED")
+    return false;
+
       const now = new Date();
       const eventDate = new Date(this.event.eventStartDate);
       const diffTime = eventDate.getTime() - now.getTime();

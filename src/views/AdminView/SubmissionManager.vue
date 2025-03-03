@@ -1,110 +1,93 @@
 <template>
-  <div class="container mt-4 p-4 bg-light shadow-sm rounded">
-    <h2 class="text-center text-primary fw-bold mb-4">Quản lý Đơn Xét Duyệt</h2>
-    <div class="row g-4">
+  <div class="container mx-auto p-6 bg-gray-100 shadow-md rounded-lg">
+    <h2 class="text-center text-blue-600 font-bold text-2xl mb-6">Quản lý Đơn Xét Duyệt</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div
         v-for="submission in submissions"
         :key="submission.submissionId"
-        class="col-lg-6"
+        class="relative bg-white border border-blue-500 p-6 rounded-lg shadow-md transition-transform transform hover:-translate-y-1 hover:shadow-lg"
+        @mouseover="showHoverCard(submission, $event)"
+        @mouseleave="hideHoverCard"
       >
-        <div
-          class="approval-form border p-4 rounded shadow position-relative"
-          @mouseover="showHoverCard(submission, $event)"
-          @mouseleave="hideHoverCard"
-        >
-          <h4 class="text-center text-uppercase fw-bold text-primary mb-3">
-            Đơn Xét Duyệt
-          </h4>
-          <hr />
-          <div class="form-content">
-            <h4 style="font-style: bold">
-              <strong>Tiêu đề:</strong> {{ submission.subSubject }}
-            </h4>
-            <p>
-              <strong>Người tạo:</strong>
-              <span
-                @click="toggleCompanyInfo(submission)"
-                class="text-decoration-underline text-info cursor-pointer"
-              >
-                {{
-                  submission.showCompanyId
-                    ? submission.subCompanyId
-                    : submission.subCompanyName
-                }}
-              </span>
-            </p>
-            <p>
-              <strong>Ngày tạo:</strong>
-              {{ formatDate(submission.subCreateDate) }}
-            </p>
-            <p>
-              <strong>Hạn chót:</strong>
-              {{ formatDate(submission.subDeadline) }}
-            </p>
-            <p><strong>Mô tả:</strong> {{ submission.subContent }}</p>
-            <p v-if="submission.subSubject === 'Yêu Cầu Cập Nhật Giá Sự Kiện'">
-              <strong>Nội dung:</strong> {{ submission.subFormdata }} VND
-            </p>
-          </div>
-          <div class="d-flex gap-3 mt-4">
-            <button
-              v-if="submission.subStatus === 'PENDING'"
-              @click="pass(submission)"
-              class="btn btn-success flex-grow-1"
+        <h4 class="text-center text-blue-600 font-bold text-lg uppercase mb-3">Đơn Xét Duyệt</h4>
+        <hr class="border-t border-gray-300 my-3" />
+        <div>
+          <h4 class="font-bold">Tiêu đề: {{ submission.subSubject }}</h4>
+          <p>
+            <strong>Người tạo:</strong>
+            <span
+              @click="toggleCompanyInfo(submission)"
+              class="text-blue-500 underline cursor-pointer"
             >
-              <i class="fas fa-check"></i> Duyệt
-            </button>
-            <button
-              v-if="submission.subStatus === 'PENDING'"
-              @click="reject(submission)"
-              class="btn btn-danger flex-grow-1"
-            >
-              <i class="fas fa-times"></i> Từ chối
-            </button>
-            <button
-              v-if="submission.subStatus !== 'PENDING'"
-              disabled
-              class="btn btn-warning flex-grow-1"
-            >
-              {{ submission.subStatus }}
-            </button>
-          </div>
+              {{
+                submission.showCompanyId
+                  ? submission.subCompanyId
+                  : submission.subCompanyName
+              }}
+            </span>
+          </p>
+          <p><strong>Ngày tạo:</strong> {{ formatDate(submission.subCreateDate) }}</p>
+          <p><strong>Hạn chót:</strong> {{ formatDate(submission.subDeadline) }}</p>
+          <p><strong>Mô tả:</strong> {{ submission.subContent }}</p>
+          <p v-if="submission.subSubject === 'Yêu Cầu Cập Nhật Giá Sự Kiện'">
+            <strong>Nội dung:</strong> {{ submission.subFormdata }} VND
+          </p>
+        </div>
+        <div class="flex gap-3 mt-4">
+          <button
+            v-if="submission.subStatus === 'PENDING'"
+            @click="pass(submission)"
+            class="flex-grow bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600"
+          >
+            <i class="fas fa-check"></i> Duyệt
+          </button>
+          <button
+            v-if="submission.subStatus === 'PENDING'"
+            @click="reject(submission)"
+            class="flex-grow bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600"
+          >
+            <i class="fas fa-times"></i> Từ chối
+          </button>
+          <button
+            v-if="submission.subStatus !== 'PENDING'"
+            disabled
+            class="flex-grow bg-yellow-500 text-white py-2 px-4 rounded-lg cursor-not-allowed"
+          >
+            {{ submission.subStatus }}
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Card nổi khi hover -->
     <div
       v-if="hoveredSubmission"
-      class="hover-card shadow-lg bg-white p-3 rounded-3"
-      :style="{
-        top: hoverPosition.top + 'px',
-        left: hoverPosition.left + 'px',
-      }"
+      class="absolute z-50 bg-white shadow-lg p-4 rounded-lg w-72"
+      :style="{ top: hoverPosition.top + 'px', left: hoverPosition.left + 'px' }"
     >
-      <h4 class="fw-bold text-dark">Sự kiện</h4>
-      <h5 class="text-primary fw-bold">{{ hoveredSubmission.eventTitle }}</h5>
+      <h4 class="font-bold text-gray-700">Sự kiện</h4>
+      <h5 class="text-blue-600 font-bold">{{ hoveredSubmission.eventTitle }}</h5>
       <p><strong>ID:</strong> {{ hoveredSubmission.eventId }}</p>
       <p><strong>Trạng thái:</strong> {{ hoveredSubmission.eventStatus }}</p>
       <p><strong>Giá:</strong> {{ hoveredSubmission.eventPrice }} VND</p>
     </div>
-  </div>
-  <div class="d-flex justify-content-between align-items-center mt-4">
-    <button
-      @click="prevPage"
-      :disabled="currentPage === 1"
-      class="btn btn-outline-primary"
-    >
-      <i class="fas fa-chevron-left"></i> Trang trước
-    </button>
-    <span class="fw-bold">Trang {{ currentPage }} / {{ totalPages }}</span>
-    <button
-      @click="nextPage"
-      :disabled="currentPage >= totalPages"
-      class="btn btn-outline-primary"
-    >
-      Trang sau <i class="fas fa-chevron-right"></i>
-    </button>
+
+    <div class="flex justify-between items-center mt-6">
+      <button
+        @click="prevPage"
+        :disabled="currentPage === 1"
+        class="px-4 py-2 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white disabled:opacity-50"
+      >
+        <i class="fas fa-chevron-left"></i> Trang trước
+      </button>
+      <span class="font-bold text-gray-700">Trang {{ currentPage }} / {{ totalPages }}</span>
+      <button
+        @click="nextPage"
+        :disabled="currentPage >= totalPages"
+        class="px-4 py-2 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white disabled:opacity-50"
+      >
+        Trang sau <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -142,7 +125,7 @@ export default {
     return {
       submissions: [],
       currentPage: 1,
-      itemsPerPage: 5,
+      itemsPerPage: 6,
       totalPages: 1,
 
       hoveredSubmission: null,

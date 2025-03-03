@@ -41,7 +41,7 @@
       </div>
     </div>
 
-    <div class="container col-10" style="margin-left: 10px">
+    <div class="container" style="margin-left: 10px">
       <RouterView :userInfo="userInfo" />
     </div>
   </div>
@@ -81,24 +81,24 @@ export default {
           iconPath:
             "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
         },
-        {
-          name: "Quản Lý Vé Đã Mua",
-          path: `/company/${this.userInfo.id}/tickets`,
-          iconPath:
-            "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
-        },
+        // {
+        //   name: "Quản Lý Vé Đã Mua",
+        //   path: `/company/${this.userInfo.id}/tickets`,
+        //   iconPath:
+        //     "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
+        // },
         {
           name: "Quản Lý Sự Kiện",
           path: `/company/${this.userInfo.id}/events`,
           iconPath:
             "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
         },
-        {
-          name: "Tạo Sự Kiện",
-          path: `/company/${this.userInfo.id}/create/event`,
-          iconPath:
-            "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
-        },
+        // {
+        //   name: "Tạo Sự Kiện",
+        //   path: `/company/${this.userInfo.id}/create/event`,
+        //   iconPath:
+        //     "M2 3.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1.5h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1v-10a1 1 0 0 1 1-1h1zm11-1V2a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v.5H2v10h12v-10h-1z M9 8H7v4h2V8zm1-3H6v2h4V5z",
+        // },
         {
           name: "Quản Lý Công Việc",
           path: `/company/${this.userInfo.id}/dashboard`,
@@ -167,8 +167,8 @@ export default {
 }
 
 .avatar {
-  width: 50px; /* Kích thước lớn hơn */
-  height: 50px; /* Chiều cao tương ứng */
+  width: 70px; /* Kích thước lớn hơn */
+  height: 70px; /* Chiều cao tương ứng */
   border-radius: 50%; /* Hình tròn */
   border: 2px solid #007bff; /* Viền cho ảnh đại diện */
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Bóng đổ cho ảnh đại diện */

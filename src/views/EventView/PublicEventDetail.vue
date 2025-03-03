@@ -96,36 +96,7 @@
               <span class="fw-bold">{{ event.eventStatus }}</span>
             </li>
           </ul>
-          <button
-            class="btn btn-primary mt-2 mx-2"
-            :disabled="!canUpdateZone"
-            @click="isModalOpen = true"
-            :title="
-              !canUpdateZone
-                ? 'Chỉ được cập nhật zone trước 7 ngày trước khi sự kiện bắt đầu'
-                : ''
-            "
-          >
-            Cập nhật Gía vé
-          </button>
-          <router-link
-            :to="{
-              name: 'EventUpdate',
-              params: {
-                eventId: event.eventId,
-                companyId: event.eventCompanyId,
-              },
-            }"
-            class="btn btn-primary position-relative mt-2 mx-2"
-            :class="{ disabled: !canUpdateZone }"
-            v-tooltip="
-              !canUpdateZone
-                ? 'Chỉ được cập nhật trước 7 ngày trước khi sự kiện bắt đầu'
-                : ''
-            "
-          >
-            <i class="fas fa-edit"></i> Cập nhật Sự Kiện
-          </router-link>
+
         </div>
       </div>
     </div>
@@ -145,7 +116,8 @@
     </div>
 
     <div class="event-tickets">
-      <h3>Đặt Vé Tại Đây</h3>
+      <hr>
+      <h3 class="text-2xl font-bold text-center mb-6">Đặt vé tại đây</h3>
       <div class="ticket-list">
         <div
           v-for="(remainingCapacity, day) in event.eventTicketCapacity"
@@ -189,12 +161,6 @@
         </div>
       </div>
     </div>
-
-    <UpdateZoneModal
-      :eventId="event.eventId"
-      :isModalOpen="isModalOpen"
-      @close="isModalOpen = false"
-    />
     <!-- Modal đặt vé -->
     <EventBooking
       v-if="showModal"
@@ -226,7 +192,6 @@ export default {
     SwiperSlide,
     EventBooking,
     EventBookingAllDay,
-    UpdateZoneModal,
   },
   data() {
     return {
@@ -280,7 +245,7 @@ export default {
     async fetchEventData() {
       this.loading = true;
       try {
-        const response = await api.get(`/events/${this.eventId}`);
+        const response = await api.get(`/public/${this.eventId}`);
         this.event = response.data.data;
       } catch (error) {
         console.error("Error fetching event data:", error);

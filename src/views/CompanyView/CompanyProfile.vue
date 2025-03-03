@@ -85,7 +85,7 @@ export default {
     },
     async updateCompany() {
       try {
-        const response = await api.put("/companies/update", this.company);
+        const response = await api.patch("/companies", this.company);
         this.$toast.success(response.data.message);
       } catch (error) {
         console.log(error);

@@ -2,15 +2,15 @@
 <template>
   <div v-if="isModalOpen" class="modal-overlay">
     <div class="modal-container">
-      <h2>Cập nhật Zone</h2>
+      <h2 style="color: black;">Cập nhật Vé</h2>
       <div v-if="firstDayZones" class="zone-group">
         <h3>Day {{ firstDay }}</h3>
         <table>
           <thead>
             <tr>
-              <th>Zone Name</th>
-              <th>Rate</th>
-              <th>Capacity</th>
+              <th>Khu Vực</th>
+              <th>Tỉ giá (%)</th>
+              <th>Số lượng vé</th>
             </tr>
           </thead>
           <tbody>
@@ -30,8 +30,8 @@
           </tbody>
         </table>
       </div>
-      <button @click="submitUpdate">Cập nhật</button>
-      <button @click="closeModal">Đóng</button>
+      <button class="btn btn-primary mt-2" @click="submitUpdate">Cập nhật</button>
+      <button class="btn btn-secondary mt-2 mx-2 " @click="closeModal">Đóng</button>
     </div>
   </div>
 </template>
@@ -129,9 +129,13 @@ table {
   width: 100%;
   border-collapse: collapse;
 }
-th,
+th {
+  color: black !important;
+}
+
 td {
   border: 1px solid black;
   padding: 8px;
+  color: black;
 }
 </style>

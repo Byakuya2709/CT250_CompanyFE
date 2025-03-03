@@ -1,6 +1,38 @@
 <template>
   <div class="container mt-4 p-4 bg-white shadow rounded">
     <h2 class="text-center text-primary fw-bold mb-4">Quản lý tài khoản</h2>
+    <button class="btn-small my-2" style="width: auto" @click="showModal = true">
+      <i class="fas fa-plus"></i> Tạo tài khoản mới
+    </button>
+
+
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal-content">
+        <h3 class="text-center">Tạo tài khoản mới</h3>
+        <form @submit.prevent="createAccount">
+          <div class="mb-3">
+            <label>Email:</label>
+            <input v-model="newAccount.email" type="email" required class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label>Mật khẩu:</label>
+            <input v-model="newAccount.password" type="password" required class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label>Vai trò:</label>
+            <select v-model="newAccount.role" class="form-control">
+              <option value="USER">Người dùng</option>
+              <option value="COMPANY">Công ty tổ chức sự kiện</option>
+            </select>
+          </div>
+          <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-success">Tạo tài khoản</button>
+            <button type="button" @click="showModal = false" class="btn btn-secondary">Hủy</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <div class="table-responsive">
       <table class="table table-bordered table-hover text-center">
         <thead class="table-primary">
@@ -9,7 +41,7 @@
             <th>Email</th>
             <th>Loại</th>
             <th>Trạng thái</th>
-            
+
             <th>Hành động</th>
           </tr>
         </thead>
@@ -39,7 +71,7 @@
                 {{ account.status }}
               </span>
             </td>
-          
+
             <td>
               <button
                 v-if="account.status === 'ACTIVE'"
@@ -66,14 +98,22 @@
         </tbody>
       </table>
       <div class="d-flex justify-content-between align-items-center mt-4">
-      <button @click="prevPage" :disabled="currentPage === 1" class="btn btn-outline-primary">
-        <i class="fas fa-chevron-left"></i> Trang trước
-      </button>
-      <span class="fw-bold">Trang {{ currentPage }} / {{ totalPages }}</span>
-      <button @click="nextPage" :disabled="currentPage >= totalPages" class="btn btn-outline-primary">
-        Trang sau <i class="fas fa-chevron-right"></i>
-      </button>
-    </div>
+        <button
+          @click="prevPage"
+          :disabled="currentPage === 1"
+          class="btn btn-outline-primary"
+        >
+          <i class="fas fa-chevron-left"></i> Trang trước
+        </button>
+        <span class="fw-bold">Trang {{ currentPage }} / {{ totalPages }}</span>
+        <button
+          @click="nextPage"
+          :disabled="currentPage >= totalPages"
+          class="btn btn-outline-primary"
+        >
+          Trang sau <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -96,6 +136,40 @@ tbody tr:hover {
   background-color: #f3f4f6;
   transition: 0.2s ease-in-out;
 }
+.btn-small {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex; /* Giữ kích thước vừa đủ nội dung */
+  align-items: center;
+  gap: 6px; /* Khoảng cách giữa icon và chữ */
+  text-decoration: none;
+  width: auto; /* Ngăn chiếm toàn bộ chiều rộng */
+}
+
+.modal-overlay {
+  z-index: 10000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
 </style>
 <script>
 import { api } from "@/api/Api";
@@ -108,6 +182,13 @@ export default {
       itemsPerPage: 10,
       totalPages: 1,
       totalElements: 0,
+
+      showModal: false,
+      newAccount: {
+        email: "",
+        password: "",
+        role: "USER",
+      },
     };
   },
   computed: {
@@ -118,6 +199,20 @@ export default {
     },
   },
   methods: {
+
+    async createAccount() {
+      try {
+        const res = await api.post("/admins/accounts", this.newAccount);
+        this.$toast.success(res.data.message);
+        // this.fetchAccounts();
+        this.accounts.push(res.data.data)
+        this.showModal = false;
+      } catch (error) {
+        this.$toast.error(
+          error.response?.data?.message || "Lỗi khi lấy danh sách tài khoản"
+        );
+      }
+    },
     async fetchAccounts() {
       try {
         const response = await api.get(

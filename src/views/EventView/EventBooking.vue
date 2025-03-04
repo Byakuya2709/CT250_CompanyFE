@@ -358,6 +358,7 @@ export default {
         const ticket = {
           eventId: this.event.eventId,
           userId: this.user.id,
+          userEmail:this.user.email,
           ticketPrice: this.event.eventPrice,
           day: this.day.day,
           ticketPosition: this.selectedSeats[0],

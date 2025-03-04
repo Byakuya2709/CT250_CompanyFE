@@ -19,7 +19,7 @@
       <ul class="hidden md:flex items-center space-x-4">
         <li v-if="isAuthenticated">
           <router-link class="hover:text-blue-400" :to="isAdmin ? '/admin' : '/company'">
-            {{ isAdmin ? "ADMIN Dashboard" : "Dashboard" }}
+            {{ isAdmin ? "Quản Lý - ADMIN" : "Quản Lý" }}
           </router-link>
         </li>
         <li v-if="!isAuthenticated">

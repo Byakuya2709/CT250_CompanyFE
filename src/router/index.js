@@ -119,7 +119,7 @@ const router = createRouter({
         {
           path: ":companyId/tickets",
           name: "Events",
-          component: () => import("../views/EventView/BoughtTicket.vue"),
+          component: () => import("../views/CompanyView/TicketManager.vue"),
         },
         // {
         //   path: ":companyId/create/event/:eventId/submission",

@@ -125,7 +125,7 @@ export default {
     return {
       submissions: [],
       currentPage: 1,
-      itemsPerPage: 6,
+      itemsPerPage: 4,
       totalPages: 1,
 
       hoveredSubmission: null,

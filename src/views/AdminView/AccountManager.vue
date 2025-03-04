@@ -195,7 +195,7 @@ export default {
     paginatedAccounts() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
-      return this.accounts.slice(start, end);
+      return this.accounts;
     },
   },
   methods: {

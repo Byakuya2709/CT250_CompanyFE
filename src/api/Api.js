@@ -31,6 +31,8 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         const authStore = useAuthStore();
+        console.log("error", error);
+        console.log("authStore", authStore)
         if (error.response) {
             const status = error.response.status;
             const message = error.response.data?.message || 'An error occurred';

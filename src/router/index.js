@@ -100,6 +100,13 @@ const router = createRouter({
           props: (route) => ({ userInfo: route.meta.userInfo }),
         },
         {
+          path: "/company/:companyId/create/blog",
+          name: "CreateBlog",
+          component: () => import("../views/CompanyView/BlogCreate.vue"),
+          meta: { requiresAuth: true, role: "COMPANY" }
+        },
+        
+        {
           path: ":companyId/create/event",
           name: "EventsCreate",
           component: () => import("../views/EventCreateView.vue"),
@@ -133,6 +140,22 @@ const router = createRouter({
         },
       ],
     },
+
+    //xem chi tiết blog -thuy
+    {
+      path: "/company/blog/:blogId",
+      name: "BlogDetails",
+      component: () => import("../views/CompanyView/BlogDetail.vue"),
+      meta: { requiresAuth: true, role: "COMPANY", userInfo: null  },
+    },
+
+    {
+      path: "/company/blog/",
+      name: "AllBlogDetails",
+      component: () => import("../views/AllBlogView.vue"),
+      meta: { requiresAuth: true, role: "COMPANY", userInfo: null  },
+    },
+
     {
       path: "/company/events/:eventId",
       name: "EventDetails",

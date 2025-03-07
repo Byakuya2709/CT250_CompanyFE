@@ -15,12 +15,12 @@
             <span>{{ blog.blogEmotionsNumber }} thả tim</span>
         </div>
 
-        <vue-image-lightbox 
+        <!-- <vue-image-lightbox 
             :images="blog.eventListImgURL"
             :index="lightboxIndex"
             @close="lightboxIndex = -1"
             v-if="lightboxIndex !== -1"
-        />
+        /> -->
 
         <!-- Bình luận -->
         <div class="comments-section mt-4">
@@ -84,9 +84,9 @@ export default {
         },
     },
     methods: {
-        openLightbox(index) {
-            this.lightboxIndex = index;
-        },
+        // openLightbox(index) {
+        //     this.lightboxIndex = index;
+        // },
         async fetchUserInfo() {
             try {
                 const res = await api.get(`/companies/${this.user.id}`);
@@ -118,9 +118,23 @@ export default {
                 const response = await api.get(`/blog/${blogId}`);
                 if (response.status === 200) {
                     this.blog = response.data.data;
+                    // Kiểm tra trạng thái isLiked của người dùng cho bài viết này
+                    this.checkUserLikeStatus(blogId);
                 }
             } catch (error) {
                 this.$toast.error('Lỗi xảy ra trong quá trình lấy thông tin bài viết');
+            }
+        },
+        async checkUserLikeStatus(blogId) {
+            try {
+                const response = await api.get(`/blog/${blogId}/check-liked`, {
+                    params: { userId: this.user.id }
+                });
+                if (response.status === 200) {
+                    this.blog.isLiked = response.data.isLiked;
+                }
+            } catch (error) {
+                console.error('Lỗi xảy ra trong quá trình kiểm tra trạng thái thả tim:', error);
             }
         },
         async fetchComments() {
@@ -155,12 +169,13 @@ export default {
                     params: { userId: userId }
                 });
                 if (response.status === 200) {
-                    this.blog.isLiked = !this.blog.isLiked;
+                    this.blog.isLiked = response.data.isLiked;
                     this.blog.blogEmotionsNumber = response.data.blogEmotionsNumber;
                     this.$toast.success('Thay đổi trạng thái thả tim thành công!');
+                } else {
+                    this.$toast.error('Lỗi xảy ra trong quá trình thả tim');
                 }
             } catch (error) {
-                console.log(error);
                 this.$toast.error('Lỗi xảy ra trong quá trình thả tim');
             }
         }
@@ -170,6 +185,7 @@ export default {
         this.fetchBlogDetail();
         this.fetchComments();
     }
+
 };
 </script>
 

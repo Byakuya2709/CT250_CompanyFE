@@ -119,6 +119,8 @@ const router = createRouter({
           component: () => import("../views/CompanyView/BlogCreate.vue"),
           meta: { requiresAuth: true, role: "COMPANY" }
         },
+
+        //trang xem bài viết được đăng bởi companyUser
         {
           path: "/company/:companyId/blogManager",
           name: "BlogManager",

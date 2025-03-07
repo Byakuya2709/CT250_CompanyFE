@@ -119,12 +119,12 @@ const router = createRouter({
           component: () => import("../views/CompanyView/BlogCreate.vue"),
           meta: { requiresAuth: true, role: "COMPANY" }
         },
-        {
-          path: "/company/:companyId/blogManager",
-          name: "CreateBlog",
-          component: () => import("../views/CompanyView/BlogManagement.vue"),
-          meta: { requiresAuth: true, role: "COMPANY" }
-        },
+        // {
+        //   path: "/company/:companyId/blogManager",
+        //   name: "CreateBlog",
+        //   component: () => import("../views/CompanyView/BlogManagement.vue"),
+        //   meta: { requiresAuth: true, role: "COMPANY" }
+        // },
         {
           path: ":companyId/create/event",
           name: "EventsCreate",

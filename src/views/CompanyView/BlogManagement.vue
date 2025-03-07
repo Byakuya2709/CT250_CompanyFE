@@ -18,7 +18,8 @@
 
 <script>
 import { api } from "@/api/Api";
-import { useCookies } from 'vue3-cookies';
+import { useCookies } from "vue3-cookies";
+
 const { cookies } = useCookies();
 
 export default {
@@ -62,9 +63,9 @@ export default {
         },
         async fetchUserBlogs() {
             try {
-                const response = await api.get(`/blog/user/${this.user.id}`);
+                const response = await api.get(`/blog/by-user`, { params: { userId: this.user.id } });
                 if (response.status === 200) {
-                    this.blogs = response.data.data; // Đồng bộ với cấu trúc dữ liệu trả về từ API
+                    this.blogs = response.data.data; // Đảm bảo lấy đúng dữ liệu
                 }
             } catch (error) {
                 console.error("Lỗi xảy ra trong quá trình lấy danh sách bài viết:", error);
@@ -93,6 +94,7 @@ export default {
         this.fetchUserBlogs();
     }
 };
+
 
 </script>
 

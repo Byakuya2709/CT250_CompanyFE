@@ -27,7 +27,6 @@ export default {
         return {
             blogs: [],
             userInfo: {},
-            email: '',
         };
     },
     computed: {
@@ -63,13 +62,15 @@ export default {
         },
         async fetchUserBlogs() {
             try {
+                console.log("User ID:", this.user.id); // Kiểm tra userId trước khi gửi yêu cầu
                 const response = await api.get(`/blog/by-user`, { params: { userId: this.user.id } });
                 if (response.status === 200) {
+                    console.log("Response Data:", response.data); // Kiểm tra dữ liệu trả về
                     this.blogs = response.data.data; // Đảm bảo lấy đúng dữ liệu
+                    console.log("Blogs:", this.blogs); // Kiểm tra danh sách blog
                 }
             } catch (error) {
                 console.error("Lỗi xảy ra trong quá trình lấy danh sách bài viết:", error);
-                console.error("Chi tiết lỗi:", error.response);
                 this.$toast.error("Lỗi xảy ra trong quá trình lấy danh sách bài viết");
             }
         },

@@ -12,11 +12,15 @@
             </div>
             <div class="form-group">
                 <label for="files">Tệp ảnh</label>
-                <input type="file" id="blogThumbnails" @change="handleThumbnailChange" accept="image/*" multiple class="form-control" />
-                <div v-if="blogThumbnailsResult.length" class="mt-2">
-                    <div v-for="(thumb, index) in blogThumbnailsResult" :key="index" class="d-inline-block position-relative mr-2">
-                        <img :src="thumb" alt="Blog" class="img-fluid" style="max-width: 200px; border-radius: 8px" />
-                        <button @click="removeThumbnail(index)" class="btn btn-danger btn-sm position-absolute" style="top: 5px; right: 5px;">X</button>
+                <input type="file" id="blogImages" @change="handleImagesChange" accept="image/*" multiple class="form-control" />
+                <div v-if="blogImages.length > 0" class="mt-2">
+                    <h5>Hình ảnh đã chọn:</h5>
+                    <div class="d-flex flex-wrap">
+                        <div v-for="(image, index) in blogImages" :key="index" class="m-2">
+                            <img :src="image" alt="Image Preview" class="img-thumbnail"
+                                style="max-width: 100px; max-height: 100px; object-fit: cover" />
+                            <button @click="removeImage(index)" class="btn btn-danger">Xóa</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -24,6 +28,7 @@
         </form>
     </div>
 </template>
+
 <script>
 import { api } from "@/api/Api"; // Sử dụng API từ api/Api.js
 
@@ -33,59 +38,67 @@ export default {
             blog: {
                 blogSubject: '',
                 blogContent: '',
+                eventListImgURL: [],
             },
-            blogThumbnailsUrl: [],
-            blogThumbnailsResult: [],
+            blogImages: [],
+            filesData: new FormData(),
         };
     },
     methods: {
-        async fetchBlogDetail() {
+        async uploadImages() {
             try {
-                const { blogId } = this.$route.params; // Lấy blogId từ URL
-                const response = await api.get(`/blog/${blogId}`);
-                if (response.status === 200) {
-                    console.log('Blog data:', response.data.data);
-                    this.blog = response.data.data;
-                    console.log('Event List Image URLs:', this.blog.eventListImgURL); // Thêm dòng này để kiểm tra
-                }
-            } catch (error) {
-                console.error('Error fetching blog detail:', error);
-                this.$toast.error('Lỗi xảy ra trong quá trình lấy thông tin bài viết');
-            }
-        },
-
-        async uploadThumbnails() {
-            const uploadPromises = this.blogThumbnailsUrl.map(file => {
                 const formData = new FormData();
-                formData.append("file", file);
-                return api.post("/media/upload/blog/thumbnail", formData, {
-                    params: { blogSubject: this.blog.blogSubject },
+                this.filesData.getAll("files").forEach(file => {
+                    formData.append("files", file);
+                });
+                formData.append("blogTitle", this.blog.blogSubject); // Thêm tiêu đề blog vào formData
+                
+                const response = await api.post("media/upload/blogs", formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                 });
-            });
-            return await Promise.all(uploadPromises);
-        },
-        handleThumbnailChange(event) {
-            const files = event.target.files;
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                console.log('Thumbnail added:', file);
-                reader.onload = (e) => {
-                    this.blogThumbnailsUrl.push(file);
-                    this.blogThumbnailsResult.push(e.target.result);
-                };
-                reader.readAsDataURL(file);
+                
+                return response;
+            } catch (error) {
+                console.error("Lỗi xảy ra trong quá trình tải lên ảnh: ", error.response || error);
+                throw error;
             }
         },
-        removeThumbnail(index) {
-            this.blogThumbnailsUrl.splice(index, 1);
-            this.blogThumbnailsResult.splice(index, 1);
+        handleImagesChange(event) {
+            const files = event.target.files;
+            if (files.length === 0) {
+                console.error('Không có file nào được chọn');
+                return;
+            }
+
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    if (e.target.result) {
+                        this.blogImages.push(e.target.result);
+                        this.filesData.append("files", file); // Thêm file gốc vào FormData
+                    } else {
+                        console.error('File reader không thể đọc ảnh này');
+                    }
+                };
+                reader.onerror = (error) => {
+                    console.error('Có lỗi xảy ra trong quá trình đọc file:', error);
+                };
+                reader.readAsDataURL(file);
+            });
+        },
+        removeImage(index) {
+            this.blogImages.splice(index, 1);
+            const newFormData = new FormData();
+            this.blogImages.forEach((_, i) => {
+                const file = this.filesData.getAll("files")[i]; // Lấy file từ FormData gốc
+                newFormData.append("files", file); // Thêm lại các file còn lại vào FormData mới
+            });
+
+            this.filesData = newFormData;
         },
         async uploadBlog() {
             try {
                 const companyId = this.$route.params.companyId; // Lấy companyId từ URL
-                console.log('companyId:', companyId); // Kiểm tra giá trị companyId
 
                 if (!companyId) {
                     this.$toast.error('Không tìm thấy companyId');
@@ -96,27 +109,27 @@ export default {
                 formData.append("blogSubject", this.blog.blogSubject);
                 formData.append("blogContent", this.blog.blogContent);
 
-                // Upload thumbnails
-                const thumbnailResponses = await this.uploadThumbnails();
-                let eventListImgURL = thumbnailResponses.map(response => response.data.data.imageUrl);
+                // Upload images
+                const imageResponse = await this.uploadImages();
+                const eventListImgURL = imageResponse.data.data;
 
                 eventListImgURL.forEach((value) => {
                     formData.append("eventListImgURL[]", value);
                 });
 
-                console.log("Form data", formData.get("eventListImgURL"));
-
                 const response = await api.post(`/blog/${companyId}/upload`, formData);
-                console.log(response);
                 if (response.data.status === 201) {
                     this.$toast.success(response.data.message); // Hiển thị thông báo thành công
                     this.$router.push('/'); // Điều hướng về trang chủ hoặc trang khác
+                    
+                    // In kết quả ảnh đã tải lên
+                    console.log('Kết quả ảnh đã tải lên:', eventListImgURL);
                 }
             } catch (error) {
                 if (error.response && error.response.status === 401) {
                     this.$toast.error('Unauthorized: Vui lòng đăng nhập lại');
                 } else {
-                    console.log("error", error);
+                    console.error('Lỗi xảy ra trong quá trình đăng bài:', error);
                     this.$toast.error('Lỗi xảy ra trong quá trình đăng bài');
                 }
             }
@@ -124,6 +137,7 @@ export default {
     }
 };
 </script>
+
 <style scoped>
 .container {
     max-width: 600px;

@@ -99,6 +99,8 @@ const router = createRouter({
           component: () => import("@/views/CompanyView/CompanyProfile.vue"),
           props: (route) => ({ userInfo: route.meta.userInfo }),
         },
+
+        //tạo blog từ company
         {
           path: "/company/:companyId/create/blog",
           name: "CreateBlog",
@@ -141,7 +143,7 @@ const router = createRouter({
       ],
     },
 
-    //xem chi tiết blog -thuy
+    //xem chi tiết blog 
     {
       path: "/company/blog/:blogId",
       name: "BlogDetails",
@@ -149,6 +151,7 @@ const router = createRouter({
       meta: { requiresAuth: true, role: "COMPANY", userInfo: null  },
     },
 
+    //xem danh sách blog
     {
       path: "/company/blog/",
       name: "AllBlogDetails",

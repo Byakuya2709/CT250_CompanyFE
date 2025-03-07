@@ -465,12 +465,7 @@ export default {
         headers: { "Content-Type": "multipart/form-data" },
       });
     },
-    async uploadImages() {
-      return await api.post("/media/upload/events", this.filesData, {
-        params: { eventTitle: this.event.eventTitle },
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-    },
+    
 
     handleInput() {
       this.event.eventTagsString = this.event.eventTags.join("|");

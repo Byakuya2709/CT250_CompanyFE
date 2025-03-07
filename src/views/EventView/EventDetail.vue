@@ -157,7 +157,7 @@
             <strong>DAY {{ day }}</strong>
           </p>
           <p>Số lượng vé còn lại: {{ remainingCapacity }}</p>
-          <button
+          <!-- <button
             class="book-btn"
             :disabled="!canPurchaseTicket"
             @click="openModal({ day, remainingCapacity })"
@@ -168,14 +168,14 @@
             "
           >
             Đặt vé ngay
-          </button>
+          </button> -->
         </div>
         <div class="ticket-card">
           <p>
             <strong>FULL DAY</strong>
           </p>
           <p>Tổng: {{ event.totalDay }} ngày</p>
-          <button
+          <!-- <button
             class="book-btn"
             :disabled="!canPurchaseTicket"
             @click="openModalAllDay"
@@ -186,7 +186,7 @@
             "
           >
             Đặt vé toàn sự kiện
-          </button>
+          </button> -->
         </div>
       </div>
     </div>
@@ -197,40 +197,105 @@
       @close="isModalOpen = false"
     />
     <!-- Modal đặt vé -->
-    <EventBooking
-      v-if="showModal"
-      :event="event"
-      :day="selectedTicket"
-      @close="closeModal"
-    />
   </div>
-  <EventBookingAllDay
-    v-if="showModalAllDay"
-    :event="event"
-    :day="string"
-    @close="closeModal"
-  />
+
+  <div class="container mt-7 border border-black p-4 rounded-lg">
+    <h4
+      class="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white md:text-5xl lg:text-6xl"
+    >
+      Phần bài đăng
+    </h4>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div
+        v-for="blog in blogs"
+        :key="blog.blogId"
+        class="border border-gray-300 p-4 rounded-lg shadow-sm"
+      >
+        <!-- Nội dung blog -->
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-semibold">
+            {{ blog.blogUserId || "Ẩn danh" }}
+          </h2>
+          <p class="text-sm text-gray-500">
+            {{ new Date(blog.blogCreateDate).toLocaleDateString() }}
+          </p>
+        </div>
+        <p class="text-gray-700 mt-1">{{ blog.blogContent }}</p>
+
+        <!-- Hình ảnh nếu có -->
+        <div
+          v-if="blog.eventListImgURL && blog.eventListImgURL.length"
+          class="mt-2"
+        >
+          <img
+            :src="blog.eventListImgURL[0]"
+            class="w-full h-52 object-cover rounded-lg"
+            alt="Blog Image"
+          />
+        </div>
+
+        <!-- Cảm xúc -->
+        <div class="flex items-center gap-4 mt-2 text-gray-500">
+          <button
+            @click="likeBlog(blog.blogId)"
+            class="flex items-center gap-2 text-gray-500 hover:text-red-500 transition"
+          >
+            ❤️ {{ blog.blogEmotionsNumber }}
+          </button>
+          <button
+            @click="goBlogDetail(blog.blogId)"
+            class="flex items-center gap-1 hover:text-blue-500"
+          >
+            💬 <span>Xem Bình Luận</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-4">
+      <button
+        @click="fetchBlogs(currentPage - 1)"
+        :disabled="currentPage === 0"
+        class="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+      >
+        ⬅ Trước
+      </button>
+
+      <span class="text-gray-700"
+        >Trang {{ currentPage + 1 }} / {{ totalPages }}</span
+      >
+
+      <button
+        @click="fetchBlogs(currentPage + 1)"
+        :disabled="currentPage >= totalPages - 1"
+        class="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+      >
+        Sau ➡
+      </button>
+    </div>
+  </div>
 </template>
 
 <script>
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/swiper-bundle.css";
 import { api } from "@/api/Api";
-import EventBooking from "@/views/EventView/EventBooking.vue";
-import EventBookingAllDay from "@/views/EventView/EventBookingAllDay.vue";
 import UpdateZoneModal from "@/views/EventView/UpdateZoneModal.vue";
 
-import {formatCurrency } from "@/composable/format"
+import { formatCurrency } from "@/composable/format";
 export default {
   components: {
     Swiper,
     SwiperSlide,
-    EventBooking,
-    EventBookingAllDay,
     UpdateZoneModal,
   },
   data() {
     return {
+      blogs: [],
+      currentPage: 0,
+      totalPages: 1,
+
       isModalOpen: false,
       loading: true,
       eventId: this.$route.params.eventId,
@@ -245,44 +310,67 @@ export default {
   },
   async mounted() {
     await this.fetchEventData();
-
-    if (this.$route.name === "EventBooking") {
-      const dayQuery = this.$route.query.day;
-      if (dayQuery) {
-        this.selectedTicket = {
-          day: dayQuery,
-          remainingCapacity: this.event.eventTicketCapacity[dayQuery] || 0,
-        };
-      }
-      this.showModal = true;
-    }
-  },
-  watch: {
-    async $route(to) {
-      await this.fetchEventData();
-
-      if (to.name === "EventBooking") {
-        const dayQuery = to.query.day;
-        if (dayQuery) {
-          this.selectedTicket = {
-            day: dayQuery,
-            remainingCapacity: this.event.eventTicketCapacity[dayQuery] || 0,
-          };
-        }
-        this.showModal = true;
-      } else {
-        this.showModal = false;
-        this.selectedTicket = null;
-      }
-    },
+    await this.fetchBlogs();
   },
   methods: {
+    goBlogDetail(blogId) {
+      this.$router.push(
+        `/company/events/${this.event.eventId}/blogs/${blogId}`
+      );
+    },
+    async likeBlog(blogId) {
+      try {
+        const userId = this.event.companyId; // Lấy userId từ dữ liệu hiện có
+        const res = await api.post(`/blogs/${blogId}/emotion`, null, {
+          params: { userId }, // Gửi userId qua query parameters
+        });
+        const updatedBlog = res.data;
+        console.log(updatedBlog);
+
+        // Cập nhật lại danh sách blogs
+        this.blogs = this.blogs.map((blog) =>
+          blog.blogId === blogId ? { ...blog, ...updatedBlog } : blog
+        );
+      } catch (error) {
+        this.$toast.error(
+          error.response?.data?.message || "Lỗi khi thích bài viết"
+        );
+      }
+    },
+    async fetchBlogs(page = 0) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const params = {};
+
+        params.userId = this.event.eventCompanyId;
+        params.eventId = this.event.eventId;
+        params.month = null;
+        params.year = null;
+
+        console.log(params);
+        params.page = page;
+        params.size = 3;
+
+        console.log("Params gửi API:", params);
+
+        const response = await api.get("/blogs/filter", { params });
+        this.blogs = response.data.data.content;
+        this.currentPage = response.data.data.number;
+        this.totalPages = response.data.data.totalPages;
+      } catch (err) {
+        this.$toast.error(err.response?.data?.message || "Lỗi khi gửi blog");
+      } finally {
+        this.loading = false;
+      }
+    },
     formatCurrency,
     async fetchEventData() {
       this.loading = true;
       try {
         const response = await api.get(`/events/${this.eventId}`);
         this.event = response.data.data;
+        console.log(this.event);
       } catch (error) {
         console.error("Error fetching event data:", error);
         this.$toast.error(error.response?.data?.message || "Đã xảy ra lỗi");
@@ -290,37 +378,15 @@ export default {
         this.loading = false;
       }
     },
-    openModal(ticket) {
-      this.selectedTicket = ticket;
-      this.showModal = true;
-
-      // Điều hướng sang /events/:eventId/booking + ticketId
-      this.$router.push({
-        name: "EventBooking",
-        params: { eventId: this.eventId },
-        query: { day: ticket.day },
-      });
-    },
-    openModalAllDay() {
-      this.selectedTicket = {
-        day: "ALL_DAY",
-        remainingCapacity: this.totalRemainCapacity || 0,
-      };
-      this.showModalAllDay = true;
-
-      this.$router.push({
-        name: "EventBookingAllDay",
-        params: { eventId: this.eventId },
-        query: { day: "ALL_DAYS" },
-      });
-    },
     closeModal() {
       this.showModal = false;
       this.showModalAllDay = false;
       this.selectedTicket = null;
 
       // Quay lại trang event chính
-      this.$router.push({ name: "EventDetails" });
+      this.$router.push({
+        path: `/company/events/${this.event.eventId}`,
+      });
     },
     calculateAverageRating(event) {
       let totalReviews = 0;
@@ -380,8 +446,12 @@ export default {
     },
     // Cho phép cập nhật Zone nếu sự kiện cách hiện tại hơn 7 ngày
     canUpdateZone() {
-      if (!this.event || !this.event.eventStartDate || this.event.eventStatus === "CANCELLED")
-    return false;
+      if (
+        !this.event ||
+        !this.event.eventStartDate ||
+        this.event.eventStatus === "CANCELLED"
+      )
+        return false;
 
       const now = new Date();
       const eventDate = new Date(this.event.eventStartDate);

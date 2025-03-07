@@ -3,71 +3,78 @@
     <h1 class="text-2xl font-bold text-center mb-6">Quản lý Sự Kiện</h1>
 
     <!-- Phần lọc sự kiện -->
-<div class="mb-6 p-4 bg-white rounded-lg shadow-sm">
-  
+    <div class="mb-6 p-4 bg-white rounded-lg shadow-sm">
+      <!-- Dòng đầu tiên của bộ lọc -->
+      <div class="flex space-x-4 mb-4">
+        <div class="flex-1">
+          <label
+            for="eventStatus"
+            class="block text-sm font-medium text-gray-700"
+            >Trạng thái:</label
+          >
+          <select
+            id="eventStatus"
+            v-model="filters.eventStatus"
+            class="block w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Tất cả</option>
+            <option value="UP_COMMING">Sắp Diễn Ra</option>
+            <option value="CANCELLED">Đã Hủy</option>
+            <option value="AWAITING_APPROVAL">Đang Chờ Phê Duyệt</option>
+            <option value="ENDED">Đã Kết Thúc</option>
+          </select>
+        </div>
+      </div>
 
-  <!-- Dòng đầu tiên của bộ lọc -->
-  <div class="flex space-x-4 mb-4">
-    <div class="flex-1">
-      <label for="eventStatus" class="block text-sm font-medium text-gray-700">Trạng thái:</label>
-      <select
-        id="eventStatus"
-        v-model="filters.eventStatus"
-        class="block w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-      >
-        <option value="">Tất cả</option>
-        <option value="UP_COMMING">Sắp Diễn Ra</option>
-        <option value="CANCELLED">Đã Hủy</option>
-        <option value="AWAITING_APPROVAL">Đang Chờ Phê Duyệt</option>
-        <option value="ENDED">Đã Kết Thúc</option>
-      </select>
+      <!-- Dòng thứ hai của bộ lọc -->
+      <div class="flex space-x-4">
+        <div class="flex-1">
+          <label for="month" class="block text-sm font-medium text-gray-700"
+            >Tháng:</label
+          >
+          <select
+            v-model="filters.month"
+            id="month"
+            class="block w-full p-2 border rounded text-gray-700 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Tất cả</option>
+            <option v-for="month in months" :key="month" :value="month">
+              {{ month }}
+            </option>
+          </select>
+        </div>
+        <div class="flex-1">
+          <label for="year" class="block text-sm font-medium text-gray-700"
+            >Năm:</label
+          >
+          <select
+            v-model="filters.year"
+            id="year"
+            class="block w-full p-2 border rounded text-gray-700 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Tất cả</option>
+            <option v-for="year in availableYears" :key="year" :value="year">
+              {{ year }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex space-x-2 mt-4">
+        <button
+          @click="applyFilters"
+          class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Áp dụng
+        </button>
+        <button
+          @click="clearFilters"
+          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+        >
+          Xóa
+        </button>
+      </div>
     </div>
-   
-    
-  </div>
-
-  <!-- Dòng thứ hai của bộ lọc -->
-  <div class="flex space-x-4">
-    <div class="flex-1">
-      <label for="month" class="block text-sm font-medium text-gray-700">Tháng:</label>
-      <select
-        v-model="filters.month"
-        id="month"
-        class="block w-full p-2 border rounded text-gray-700 focus:ring-blue-500 focus:border-blue-500"
-      >
-        <option value="">Tất cả</option>
-        <option v-for="month in months" :key="month" :value="month">{{ month }}</option>
-      </select>
-    </div>
-    <div class="flex-1">
-      <label for="year" class="block text-sm font-medium text-gray-700">Năm:</label>
-      <select
-        v-model="filters.year"
-        id="year"
-        class="block w-full p-2 border rounded text-gray-700 focus:ring-blue-500 focus:border-blue-500"
-      >
-        <option value="">Tất cả</option>
-        <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="flex space-x-2 mt-4">
-    <button
-      @click="applyFilters"
-      class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-    >
-      Áp dụng
-    </button>
-    <button
-      @click="clearFilters"
-      class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-    >
-      Xóa
-    </button>
-  </div>
-</div>
-
 
     <div v-if="loading" class="text-center text-gray-500">
       Loading events...
@@ -196,7 +203,11 @@ export default {
       const { eventStatus, year, month } = this.filters;
       try {
         const response = await api.get(
-          `/events/filter?page=${this.currentPage - 1}&companyId=${this.$route.params.companyId}&size=${this.itemsPerPage}&eventStatus=${eventStatus}&month=${month}&year=${year}`
+          `/events/filter?page=${this.currentPage - 1}&companyId=${
+            this.$route.params.companyId
+          }&size=${
+            this.itemsPerPage
+          }&eventStatus=${eventStatus}&month=${month}&year=${year}`
         );
 
         if (response.data.status === "OK") {
@@ -252,7 +263,7 @@ export default {
       };
     },
     goToEventDetails(eventId) {
-      this.$router.push({ path: `/event/${eventId}` });
+      this.$router.push({ path: `/company/events/${eventId}` });
     },
     prevPage() {
       if (this.currentPage > 1) {

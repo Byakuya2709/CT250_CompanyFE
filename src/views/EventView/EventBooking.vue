@@ -255,6 +255,7 @@ export default {
       selectedZone: null,
       availableSeats: [],
       paymentUrl: null,
+      userInfo: {},
     };
   },
   computed: {
@@ -273,6 +274,7 @@ export default {
   async mounted() {
     await this.fetchZones();
     await this.fetchAllSeats(); // Chỉ fetch API một lần
+    await this.fetchUserInfo();
   },
   watch: {
     day() {
@@ -281,6 +283,18 @@ export default {
     },
   },
   methods: {
+    async fetchUserInfo() {
+      try {
+        const res = await api.get(`/users/${this.user.id}`);
+        console.log(res.data);
+        this.userInfo = res.data.data;
+      } catch (error) {
+        this.$toast.error(
+          error.response?.data?.message ||
+            "Đã xảy ra lỗi khi tải thông tin người dùng"
+        );
+      }
+    },
     async fetchZones() {
       try {
         const response = await api.get(`/booking/zone/${this.event.eventId}`, {
@@ -357,8 +371,8 @@ export default {
       if (this.selectedSeats.length > 0) {
         const ticket = {
           eventId: this.event.eventId,
-          userId: this.user.id,
-          userEmail:this.user.email,
+          userId: this.userInfo.id,
+          userEmail: this.userInfo.userMail,
           ticketPrice: this.event.eventPrice,
           day: this.day.day,
           ticketPosition: this.selectedSeats[0],

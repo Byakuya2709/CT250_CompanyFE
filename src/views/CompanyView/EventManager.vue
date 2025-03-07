@@ -2,11 +2,15 @@
   <div class="eventList container mx-auto p-6">
     <h1 class="text-2xl font-bold text-center mb-6">Quản lý Sự Kiện</h1>
 
-    <div v-if="loading" class="text-center text-gray-500">Loading events...</div>
+    <div v-if="loading" class="text-center text-gray-500">
+      Loading events...
+    </div>
 
     <div v-if="events.length > 0">
       <!-- Container for event items -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+      >
         <div
           v-for="event in events"
           :key="event.eventId"
@@ -14,12 +18,23 @@
           class="bg-white shadow-lg rounded-lg overflow-hidden p-4 transition transform hover:scale-105 cursor-pointer"
         >
           <h3 class="text-lg font-semibold mb-2">{{ event.eventTitle }}</h3>
-          <p class="text-gray-600 mb-2 event-description">{{ event.eventDescription }}</p>
+          <p class="text-gray-600 mb-2 event-description">
+            {{ event.eventDescription }}
+          </p>
 
-          <p class="text-sm"><strong>Ngày Bắt đầu:</strong> {{ formatDate(event.eventStartDate) }}</p>
-          <p class="text-sm"><strong>Ngày Kết Thúc:</strong> {{ formatDate(event.eventEndDate) }}</p>
-          <p class="text-sm"><strong>Giá:</strong> {{ formatCurrency(event.eventPrice) }}</p>
-          <p class="text-sm"><strong>Trạng thái:</strong> {{ event.eventStatus }}</p>
+          <p class="text-sm">
+            <strong>Ngày Bắt đầu:</strong>
+            {{ formatDate(event.eventStartDate) }}
+          </p>
+          <p class="text-sm">
+            <strong>Ngày Kết Thúc:</strong> {{ formatDate(event.eventEndDate) }}
+          </p>
+          <p class="text-sm">
+            <strong>Giá:</strong> {{ formatCurrency(event.eventPrice) }}
+          </p>
+          <p class="text-sm">
+            <strong>Trạng thái:</strong> {{ event.eventStatus }}
+          </p>
 
           <!-- Display Stars -->
           <div class="flex items-center mt-2 text-yellow-500">
@@ -41,32 +56,45 @@
           </div>
 
           <!-- Event Image -->
-          <img :src="getPosterImage(event.eventListImgURL)" alt="Event Image" class="w-full h-40 object-cover mt-3 rounded-md" />
+          <img
+            :src="getPosterImage(event.eventListImgURL)"
+            alt="Event Image"
+            class="w-full h-40 object-cover mt-3 rounded-md"
+          />
         </div>
       </div>
 
       <!-- Pagination Controls -->
       <div class="flex justify-between items-center mt-6">
-        <button @click="prevPage" :disabled="currentPage === 1" 
-          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50">
+        <button
+          @click="prevPage"
+          :disabled="currentPage === 1"
+          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+        >
           <i class="fas fa-chevron-left"></i> Trang trước
         </button>
-        <span class="font-semibold">Trang {{ currentPage }} / {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage >= totalPages" 
-          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50">
+        <span class="font-semibold"
+          >Trang {{ currentPage }} / {{ totalPages }}</span
+        >
+        <button
+          @click="nextPage"
+          :disabled="currentPage >= totalPages"
+          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+        >
           Trang sau <i class="fas fa-chevron-right"></i>
         </button>
       </div>
     </div>
 
-    <div v-if="events.length === 0" class="text-center text-gray-500 mt-6">No events found.</div>
+    <div v-if="events.length === 0" class="text-center text-gray-500 mt-6">
+      No events found.
+    </div>
   </div>
 </template>
 
-
 <script>
 import { api } from "@/api/Api";
-import {formatCurrency } from "@/composable/format"
+import { formatCurrency } from "@/composable/format";
 export default {
   data() {
     return {
@@ -99,7 +127,9 @@ export default {
       this.loading = true;
       try {
         const response = await api.get(
-          `/events/filter?page=${this.currentPage - 1}&size=${this.itemsPerPage}`
+          `/events/filter?page=${this.currentPage - 1}&size=${
+            this.itemsPerPage
+          }`
         );
 
         if (response.data.status === "OK") {
@@ -123,11 +153,11 @@ export default {
 
     // Change page and fetch new data
     changePage(pageNumber) {
-  if (pageNumber > 0 && pageNumber <= this.totalPages) {
-    this.currentPage = pageNumber;
-    this.getEvents();
-  }
-},
+      if (pageNumber > 0 && pageNumber <= this.totalPages) {
+        this.currentPage = pageNumber;
+        this.getEvents();
+      }
+    },
 
     // Method to format date
     formatDate(dateString) {
@@ -165,7 +195,7 @@ export default {
       };
     },
     goToEventDetails(eventId) {
-      this.$router.push({ path: `/event/${eventId}` });
+      this.$router.push({ path: `/company/event/${eventId}` });
     },
 
     prevPage() {

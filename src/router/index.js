@@ -117,9 +117,19 @@ const router = createRouter({
           component: () => import("../views/EventCreateView.vue"),
         },
         {
+          path: ":companyId/create/blog",
+          name: "BlogCreate",
+          component: () => import("../views/CompanyView/UploadBlog.vue"),
+        },
+        {
           path: ":companyId/tickets",
-          name: "Events",
+          name: "Tickets",
           component: () => import("../views/CompanyView/TicketManager.vue"),
+        },
+        {
+          path: ":companyId/blogs",
+          name: "Blogs",
+          component: () => import("../views/CompanyView/BlogManager.vue"),
         },
         // {
         //   path: ":companyId/create/event/:eventId/submission",
@@ -150,20 +160,12 @@ const router = createRouter({
       name: "EventDetails",
       component: () => import("../views/EventView/EventDetail.vue"),
       meta: { requiresAuth: true, role: "COMPANY" },
-      children: [
-        {
-          path: "booking",
-          name: "EventBooking",
-          component: () => import("../views/EventView/EventBooking.vue"),
-          meta: { modal: true }, // Đánh dấu route này là modal
-        },
-        {
-          path: "booking/all-day",
-          name: "EventBookingAllDay",
-          component: () => import("../views/EventView/EventBookingAllDay.vue"),
-          meta: { modal: true },
-        },
-      ],
+    },
+    {
+      path: "/company/events/:eventId/blogs/:blogId",
+      name: "BlogsDetails",
+      component: () => import("../views/EventView/BlogDetail.vue"),
+      meta: { requiresAuth: true, role: "COMPANY" },
     },
 
     {

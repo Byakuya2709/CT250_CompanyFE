@@ -29,6 +29,7 @@
                 <div v-for="comment in comments" :key="comment.cmtId" class="comment-box">
                     <p><strong>{{ comment.cmtUserId }}</strong> - {{ new Date(comment.cmtCreateDate).toLocaleString() }}</p>
                     <p>{{ comment.cmtContent }}</p>
+                    <button v-if="comment.cmtUserId === user.id" @click="deleteComment(comment.cmtId)">Xóa</button> <!-- Hiển thị nút Xóa nếu người dùng đã bình luận -->
                 </div>
             </div>
             <div v-else>
@@ -49,6 +50,7 @@
         </div>
     </div>
 </template>
+
 
 <script>
 import { api } from "@/api/Api"; // Sử dụng API từ api/Api.js

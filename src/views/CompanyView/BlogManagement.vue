@@ -25,6 +25,7 @@
 </template>
 
 
+
 <script>
 import { api } from "@/api/Api";
 import { useCookies } from "vue3-cookies";
@@ -70,19 +71,19 @@ export default {
             }
         },
         async fetchUserBlogs() {
-            try {
-                console.log("User ID:", this.user.id); // Kiểm tra userId trước khi gửi yêu cầu
-                const response = await api.get(`/blog/by-user`, { params: { userId: this.user.id } });
-                if (response.status === 200) {
-                    console.log("Response Data:", response.data); // Kiểm tra dữ liệu trả về
-                    this.blogs = response.data.data; // Đảm bảo lấy đúng dữ liệu
-                    console.log("Blogs:", this.blogs); // Kiểm tra danh sách blog
-                }
-            } catch (error) {
-                console.error("Lỗi xảy ra trong quá trình lấy danh sách bài viết:", error);
-                this.$toast.error("Lỗi xảy ra trong quá trình lấy danh sách bài viết");
+        try {
+            console.log("User ID:", this.user.id); // Kiểm tra userId trước khi gửi yêu cầu
+            const response = await api.get(`/blog/by-user`, { params: { userId: this.user.id } });
+            if (response.status === 200) {
+                console.log("Response Data:", response.data); // Kiểm tra dữ liệu trả về
+                this.blogs = response.data.data; // Gán blogs bằng response.data.data
+                console.log("Blogs:", this.blogs); // Kiểm tra danh sách blog
             }
-        },
+        } catch (error) {
+            console.error("Lỗi xảy ra trong quá trình lấy danh sách bài viết:", error);
+            this.$toast.error("Lỗi xảy ra trong quá trình lấy danh sách bài viết");
+        }
+    },
 
         editBlog(blogId) {
             this.$router.push(`/blog/edit/${blogId}`);
@@ -104,6 +105,7 @@ export default {
         this.fetchUserInfo();
         this.fetchUserBlogs();
     }
+
 };
 </script>
 

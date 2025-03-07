@@ -16,10 +16,9 @@
                 <div v-if="blogImages.length > 0" class="mt-2">
                     <h5>Hình ảnh đã chọn:</h5>
                     <div class="d-flex flex-wrap">
-                        <div v-for="(image, index) in blogImages" :key="index" class="m-2">
-                            <img :src="image" alt="Image Preview" class="img-thumbnail"
-                                style="max-width: 100px; max-height: 100px; object-fit: cover" />
-                            <button @click="removeImage(index)" class="btn btn-danger">Xóa</button>
+                        <div v-for="(image, index) in blogImages" :key="index" class="image-preview">
+                            <img :src="image" alt="Image Preview" class="img-thumbnail" />
+                            <button @click="removeImage(index)" class="btn btn-remove">×</button>
                         </div>
                     </div>
                 </div>
@@ -28,6 +27,9 @@
         </form>
     </div>
 </template>
+
+
+
 
 <script>
 import { api } from "@/api/Api"; // Sử dụng API từ api/Api.js
@@ -97,40 +99,43 @@ export default {
             this.filesData = newFormData;
         },
         async uploadBlog() {
-        try {
-            const companyId = this.$route.params.companyId; // Lấy companyId từ URL
+            try {
+                const companyId = this.$route.params.companyId; // Lấy companyId từ URL
 
-            if (!companyId) {
-                this.$toast.error('Không tìm thấy companyId');
-                return;
-            }
+                if (!companyId) {
+                    this.$toast.error('Không tìm thấy companyId');
+                    return;
+                }
 
-            const formData = new FormData();
-            formData.append("blogSubject", this.blog.blogSubject);
-            formData.append("blogContent", this.blog.blogContent);
+                const formData = new FormData();
+                formData.append("blogSubject", this.blog.blogSubject);
+                formData.append("blogContent", this.blog.blogContent);
 
-            // Upload images
-            const imageResponse = await this.uploadImages();
-            const eventListImgURL = imageResponse.data.data;
+                // Upload images
+                const imageResponse = await this.uploadImages();
+                const eventListImgURL = imageResponse.data.data;
 
-            eventListImgURL.forEach((value) => {
-                formData.append("eventListImgURL[]", value);
-            });
+                eventListImgURL.forEach((value) => {
+                    formData.append("eventListImgURL[]", value);
+                });
 
-            const response = await api.post(`/blog/${companyId}/upload`, formData);
-            if (response.data.status === 201) {
-                this.$toast.success(response.data.message); // Hiển thị thông báo thành công
-                this.$router.push(`/company/blog`); // Chuyển hướng đến trang /company/blog
-            }
-        } catch (error) {
-            if (error.response && error.response.status === 401) {
-                this.$toast.error('Unauthorized: Vui lòng đăng nhập lại');
-            } else {
-                console.error('Lỗi xảy ra trong quá trình đăng bài:', error);
-                this.$toast.error('Lỗi xảy ra trong quá trình đăng bài');
+                const response = await api.post(`/blog/${companyId}/upload`, formData);
+                if (response.data.status === 201) {
+                    this.$toast.success(response.data.message); // Hiển thị thông báo thành công
+                    this.$router.push('/'); // Điều hướng về trang chủ hoặc trang khác
+                    
+                    // In kết quả ảnh đã tải lên
+                    console.log('Kết quả ảnh đã tải lên:', eventListImgURL);
+                }
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    this.$toast.error('Unauthorized: Vui lòng đăng nhập lại');
+                } else {
+                    console.error('Lỗi xảy ra trong quá trình đăng bài:', error);
+                    this.$toast.error('Lỗi xảy ra trong quá trình đăng bài');
+                }
             }
         }
-    }
     }
 };
 </script>
@@ -142,15 +147,6 @@ export default {
     padding: 20px;
 }
 
-h2 {
-    font-size: 32px; /* Thay đổi kích thước font chữ */
-    font-weight: bold;
-    color: #007bff; /* Thay đổi màu sắc chữ */
-    text-align: center; /* Canh giữa */
-    text-transform: uppercase; /* Viết hoa toàn bộ chữ */
-    margin-bottom: 20px; /* Khoảng cách dưới */
-}
-
 .form-group {
     margin-bottom: 15px;
 }
@@ -160,13 +156,35 @@ h2 {
     border-color: #007bff;
 }
 
-.position-relative {
+.image-preview {
     position: relative;
+    margin: 5px;
 }
 
-.btn-danger {
-    padding: 0.2rem 0.5rem;
-    font-size: 0.8rem;
+.img-thumbnail {
+    max-width: 150px;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
 }
+
+.btn-remove {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(255, 0, 0, 0.8);
+    border: none;
+    color: #ffffff;
+    font-size: 1rem;
+    padding: 2px 6px;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
 </style>
-

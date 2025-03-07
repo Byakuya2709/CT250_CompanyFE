@@ -84,7 +84,11 @@ export default {
                     this.blogs.sort((a, b) => new Date(b.blogCreateDate) - new Date(a.blogCreateDate));
                     // Cập nhật trạng thái thả tim cho từng blog
                     this.blogs.forEach(blog => {
-                        blog.isLiked = blog.likedBy.includes(this.user.id);
+                        if (blog.likedBy) {
+                            blog.isLiked = blog.likedBy.includes(this.user.id);
+                        } else {
+                            blog.isLiked = false;
+                        }
                     });
                 }
             } catch (error) {

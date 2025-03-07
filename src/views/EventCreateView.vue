@@ -335,7 +335,7 @@ export default {
         eventStatus: "",
         eventListArtist: [],
         eventCompanyId:
-          sessionStorage.getItem("email") || cookies.get("email") || "Company",
+          sessionStorage.getItem("email") || cookies.get("email"),
         eventCompanyName:
           sessionStorage.getItem("companyName") ||
           cookies.get("companyName") ||

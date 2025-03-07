@@ -12,7 +12,19 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
-      component: HomeView,
+      component: () => import("../views/HomePage.vue"),
+      meta: { requiresAuth: false },
+    },
+    {
+      path: "/about",
+      name: "About",
+      component: () => import("../views/AboutView.vue"),
+      meta: { requiresAuth: false },
+    },
+    {
+      path: "/event/:eventId",
+      name: "PublicEvent",
+      component: () => import("../views/EventView/PublicEventDetail.vue"),
       meta: { requiresAuth: false },
     },
     {
@@ -116,14 +128,14 @@ const router = createRouter({
         {
           path: ":companyId/tickets",
           name: "Events",
-          component: () => import("../views/EventView/BoughtTicket.vue"),
+          component: () => import("../views/CompanyView/TicketManager.vue"),
         },
-        {
-          path: ":companyId/create/event/:eventId/submission",
-          name: "EventSubmissions",
-          component: () => import("../views/CompanyView/CreateSubmission.vue"),
-          props: (route) => ({ userInfo: route.meta.userInfo }),
-        },
+        // {
+        //   path: ":companyId/create/event/:eventId/submission",
+        //   name: "EventSubmissions",
+        //   component: () => import("../views/CompanyView/CreateSubmission.vue"),
+        //   props: (route) => ({ userInfo: route.meta.userInfo }),
+        // },
         {
           path: ":companyId/events",
           name: "EventsList",

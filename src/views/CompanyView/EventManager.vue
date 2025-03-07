@@ -2,118 +2,26 @@
   <div class="eventList container mx-auto p-6">
     <h1 class="text-2xl font-bold text-center mb-6">Quản lý Sự Kiện</h1>
 
-    <!-- Phần lọc sự kiện -->
-<div class="mb-6 p-4 bg-white rounded-lg shadow-sm">
-  
-
-  <!-- Dòng đầu tiên của bộ lọc -->
-  <div class="flex space-x-4 mb-4">
-
-    <div class="flex-1">
-    <label for="companyId" class="block text-sm font-medium text-gray-700">Công Ty:</label>
-    <select
-      v-model="filters.companyId"
-      id="companyId"
-      class="border p-2 rounded w-full text-gray-700 focus:ring-blue-500 focus:border-blue-500"
-    >
-      <option value="">Tất cả</option>
-      <option v-for="company in companies" :key="company.id" :value="company.id">
-        {{ company.companyName }}
-      </option>
-    </select>
-  </div>
-    <div class="flex-1">
-      <label for="eventStatus" class="block text-sm font-medium text-gray-700">Trạng thái:</label>
-      <select
-        id="eventStatus"
-        v-model="filters.eventStatus"
-        class="block w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-      >
-        <option value="">Tất cả</option>
-        <option value="UP_COMMING">Sắp Diễn Ra</option>
-        <option value="CANCELLED">Đã Hủy</option>
-        <option value="AWAITING_APPROVAL">Đang Chờ Phê Duyệt</option>
-        <option value="ENDED">Đã Kết Thúc</option>
-      </select>
-    </div>
-   
-    
-  </div>
-
-  <!-- Dòng thứ hai của bộ lọc -->
-  <div class="flex space-x-4">
-    <div class="flex-1">
-      <label for="month" class="block text-sm font-medium text-gray-700">Tháng:</label>
-      <select
-        v-model="filters.month"
-        id="month"
-        class="block w-full p-2 border rounded text-gray-700 focus:ring-blue-500 focus:border-blue-500"
-      >
-        <option value="">Tất cả</option>
-        <option v-for="month in months" :key="month" :value="month">{{ month }}</option>
-      </select>
-    </div>
-    <div class="flex-1">
-      <label for="year" class="block text-sm font-medium text-gray-700">Năm:</label>
-      <select
-        v-model="filters.year"
-        id="year"
-        class="block w-full p-2 border rounded text-gray-700 focus:ring-blue-500 focus:border-blue-500"
-      >
-        <option value="">Tất cả</option>
-        <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="flex space-x-2 mt-4">
-    <button
-      @click="applyFilters"
-      class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-    >
-      Áp dụng
-    </button>
-    <button
-      @click="clearFilters"
-      class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-    >
-      Xóa
-    </button>
-  </div>
-</div>
-
-
-    <div v-if="loading" class="text-center text-gray-500">
-      Loading events...
-    </div>
+    <div v-if="loading" class="text-center text-gray-500">Loading events...</div>
 
     <div v-if="events.length > 0">
-      <div
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-      >
+      <!-- Container for event items -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <div
-          v-for="event in paginatedAccounts"
+          v-for="event in events"
           :key="event.eventId"
           @click="goToEventDetails(event.eventId)"
           class="bg-white shadow-lg rounded-lg overflow-hidden p-4 transition transform hover:scale-105 cursor-pointer"
         >
           <h3 class="text-lg font-semibold mb-2">{{ event.eventTitle }}</h3>
-          <p class="text-gray-600 mb-2 event-description">
-            {{ event.eventDescription }}
-          </p>
-          <p class="text-sm">
-            <strong>Ngày Bắt đầu:</strong>
-            {{ formatDate(event.eventStartDate) }}
-          </p>
-          <p class="text-sm">
-            <strong>Ngày Kết Thúc:</strong> {{ formatDate(event.eventEndDate) }}
-          </p>
-          <p class="text-sm">
-            <strong>Giá:</strong> {{ formatCurrency(event.eventPrice) }}
-          </p>
-          <p class="text-sm">
-            <strong>Trạng thái:</strong> {{ event.eventStatus }}
-          </p>
+          <p class="text-gray-600 mb-2 event-description">{{ event.eventDescription }}</p>
+
+          <p class="text-sm"><strong>Ngày Bắt đầu:</strong> {{ formatDate(event.eventStartDate) }}</p>
+          <p class="text-sm"><strong>Ngày Kết Thúc:</strong> {{ formatDate(event.eventEndDate) }}</p>
+          <p class="text-sm"><strong>Giá:</strong> {{ formatCurrency(event.eventPrice) }}</p>
+          <p class="text-sm"><strong>Trạng thái:</strong> {{ event.eventStatus }}</p>
+
+          <!-- Display Stars -->
           <div class="flex items-center mt-2 text-yellow-500">
             <span
               v-for="index in getStars(event).fullStars"
@@ -131,155 +39,124 @@
               ★
             </span>
           </div>
-          <img
-            :src="getPosterImage(event.eventListImgURL)"
-            alt="Event Image"
-            class="w-full h-40 object-cover mt-3 rounded-md"
-          />
+
+          <!-- Event Image -->
+          <img :src="getPosterImage(event.eventListImgURL)" alt="Event Image" class="w-full h-40 object-cover mt-3 rounded-md" />
         </div>
       </div>
 
+      <!-- Pagination Controls -->
       <div class="flex justify-between items-center mt-6">
-        <button
-          @click="prevPage"
-          :disabled="currentPage === 1"
-          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
-        >
+        <button @click="prevPage" :disabled="currentPage === 1" 
+          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50">
           <i class="fas fa-chevron-left"></i> Trang trước
         </button>
-        <span class="font-semibold"
-          >Trang {{ currentPage }} / {{ totalPages }}</span
-        >
-        <button
-          @click="nextPage"
-          :disabled="currentPage >= totalPages"
-          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
-        >
+        <span class="font-semibold">Trang {{ currentPage }} / {{ totalPages }}</span>
+        <button @click="nextPage" :disabled="currentPage >= totalPages" 
+          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50">
           Trang sau <i class="fas fa-chevron-right"></i>
         </button>
       </div>
     </div>
 
-    <div v-if="events.length === 0" class="text-center text-gray-500 mt-6">
-      No events found.
-    </div>
+    <div v-if="events.length === 0" class="text-center text-gray-500 mt-6">No events found.</div>
   </div>
 </template>
 
+
 <script>
 import { api } from "@/api/Api";
-import { formatCurrency } from "@/composable/format";
-import { availableYears } from "@/composable/availableYears";
-import { months } from "@/composable/months";
-
+import {formatCurrency } from "@/composable/format"
 export default {
   data() {
     return {
-      companies: [],
       events: [], // Store events data
       loading: false, // Loading flag
       currentPage: 1,
-      itemsPerPage: 8,
+      itemsPerPage: 12,
       totalPages: 1,
       totalElements: 0,
-      availableYears,
-      months,
-      filters: {
-        companyId: "",
-        eventStatus: "", // Trạng thái sự kiện
-        year: "",
-        month: "",
-      },
     };
   },
   mounted() {
-    // this.getEvents();
-    this.fetchCompany();
+    this.getEvents();
   },
   computed: {
     paginatedAccounts() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
-      return this.events;
+      return this.events.slice(start, end);
     },
   },
   methods: {
-    async fetchCompany() {
-      try {
-        const response = await api.get(`/admins/company/list`);
-        this.companies = response.data.data;
-        console.log(this.companies);
-      } catch (error) {
-        console.error("Error fetching events:", error);
-      }
-    },
     formatCurrency,
     getPosterImage(imgURLs) {
+      // Tìm ảnh có tên poster.jpg, nếu không tìm thấy, trả về phần tử đầu tiên trong mảng
       return imgURLs.find((url) => url.includes("poster.jpg")) || imgURLs[0];
     },
+    // Fetch events data from the API
     async getEvents() {
       this.loading = true;
-      const { eventStatus, year, month } = this.filters;
       try {
-        const url = `/events/filter?page=${this.currentPage - 1}&companyId=${
-          this.filters.companyId
-        }&size=${
-          this.itemsPerPage
-        }&eventStatus=${eventStatus}&month=${month}&year=${year}`;
-        console.log(url);
         const response = await api.get(
-          `/events/filter?page=${this.currentPage - 1}&companyId=${
-            this.filters.companyId
-          }&size=${
-            this.itemsPerPage
-          }&eventStatus=${eventStatus}&month=${month}&year=${year}`
+          `/events/filter?page=${this.currentPage - 1}&size=${this.itemsPerPage}`
         );
 
         if (response.data.status === "OK") {
-          this.events = response.data.data.content;
-          console.log(this.events);
-          this.totalPages = response.data.data.totalPages;
+          this.events = response.data.data.content; // Store events
+          this.totalPages = response.data.data.totalPages; // Update total pages
         } else {
-          this.$toast.error("Error fetching events");
+          this.$toast.error(
+            error.response?.data?.message || "Error fetching events:"
+          );
           console.error("Error fetching events:", response.data.message);
         }
       } catch (error) {
         console.error("Error fetching events:", error);
-        this.$toast.error("Error fetching events");
+        this.$toast.error(
+          error.response?.data?.message || "Error fetching events:"
+        );
       } finally {
         this.loading = false;
       }
     },
-    applyFilters() {
-      this.currentPage = 1; // Reset to first page when filters are applied
-      this.getEvents();
-    },
-    clearFilters() {
-      this.filters.companyId = "";
-      this.filters.eventStatus = "";
-      this.filters.year = "";
-      this.filters.month = "";
-      this.applyFilters();
-    },
+
+    // Change page and fetch new data
+    changePage(pageNumber) {
+  if (pageNumber > 0 && pageNumber <= this.totalPages) {
+    this.currentPage = pageNumber;
+    this.getEvents();
+  }
+},
+
+    // Method to format date
     formatDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleString();
     },
+
+    // Calculate average rating for a single event
     calculateAverageRating(event) {
       let totalReviews = 0;
       let weightedSum = 0;
+
+      // Loop through ratings to calculate the weighted sum
       for (let star in event.eventRatingStart) {
         let count = event.eventRatingStart[star];
         weightedSum += star * count;
         totalReviews += count;
       }
+
+      // Return the average rating or 0 if no ratings
       return totalReviews === 0 ? 0 : weightedSum / totalReviews;
     },
+
+    // Get full, half, and empty stars based on the average rating of an event
     getStars(event) {
       const averageRating = this.calculateAverageRating(event);
-      const fullStars = Math.floor(averageRating);
-      const halfStars = averageRating % 1 >= 0.5 ? 1 : 0;
-      const emptyStars = 5 - fullStars - halfStars;
+      const fullStars = Math.floor(averageRating); // Full stars
+      const halfStars = averageRating % 1 >= 0.5 ? 1 : 0; // Half star if needed
+      const emptyStars = 5 - fullStars - halfStars; // Empty stars
 
       return {
         fullStars,
@@ -290,6 +167,7 @@ export default {
     goToEventDetails(eventId) {
       this.$router.push({ path: `/event/${eventId}` });
     },
+
     prevPage() {
       if (this.currentPage > 1) {
         this.currentPage--;

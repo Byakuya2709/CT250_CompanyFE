@@ -66,24 +66,23 @@
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong
-                ><i class="fas fa-money-bill-wave text-success"></i> Giá
-                gốc:</strong
+                ><i class="fas fa-money-bill-wave text-success"></i>
+                Giá gốc:</strong
               >
-              <span class="fw-semibold text-success">{{
-                formatCurrency(event.eventPrice)
-              }}</span>
+              <span class="fw-semibold text-success"
+                >{{ formatCurrency(event.eventPrice) }}</span
+              >
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong
-                ><i class="fas fa-map-marker-alt text-info"></i> Địa chỉ tổ
-                chức:</strong
+                ><i class="fas fa-map-marker-alt text-info"></i>
+                Địa chỉ tổ chức:</strong
               >
               <span>{{ event.eventAddress }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong
-                ><i class="fas fa-users text-primary"></i> Sức chứa (tối
-                đa):</strong
+                ><i class="fas fa-users text-primary"></i> Sức chứa (tối đa):</strong
               >
               <span class="fw-semibold text-primary"
                 >{{ event.eventCapacity }} người</span
@@ -91,42 +90,13 @@
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong
-                ><i class="fas fa-check-circle text-secondary"></i> Trạng
-                thái:</strong
+                ><i class="fas fa-check-circle text-secondary"></i>
+                Trạng thái:</strong
               >
               <span class="fw-bold">{{ event.eventStatus }}</span>
             </li>
           </ul>
-          <button
-            class="btn btn-primary mt-2 mx-2"
-            :disabled="!canUpdateZone"
-            @click="isModalOpen = true"
-            :title="
-              !canUpdateZone
-                ? 'Chỉ được cập nhật zone trước 7 ngày trước khi sự kiện bắt đầu'
-                : ''
-            "
-          >
-            Cập nhật Gía vé
-          </button>
-          <router-link
-            :to="{
-              name: 'EventUpdate',
-              params: {
-                eventId: event.eventId,
-                companyId: event.eventCompanyId,
-              },
-            }"
-            class="btn btn-primary position-relative mt-2 mx-2"
-            :class="{ disabled: !canUpdateZone }"
-            v-tooltip="
-              !canUpdateZone
-                ? 'Chỉ được cập nhật trước 7 ngày trước khi sự kiện bắt đầu'
-                : ''
-            "
-          >
-            <i class="fas fa-edit"></i> Cập nhật Sự Kiện
-          </router-link>
+
         </div>
       </div>
     </div>
@@ -146,7 +116,8 @@
     </div>
 
     <div class="event-tickets">
-      <h3>Đặt Vé Tại Đây</h3>
+      <hr>
+      <h3 class="text-2xl font-bold text-center mb-6">Đặt vé tại đây</h3>
       <div class="ticket-list">
         <div
           v-for="(remainingCapacity, day) in event.eventTicketCapacity"
@@ -190,12 +161,6 @@
         </div>
       </div>
     </div>
-
-    <UpdateZoneModal
-      :eventId="event.eventId"
-      :isModalOpen="isModalOpen"
-      @close="isModalOpen = false"
-    />
     <!-- Modal đặt vé -->
     <EventBooking
       v-if="showModal"
@@ -227,7 +192,6 @@ export default {
     SwiperSlide,
     EventBooking,
     EventBookingAllDay,
-    UpdateZoneModal,
   },
   data() {
     return {
@@ -281,7 +245,7 @@ export default {
     async fetchEventData() {
       this.loading = true;
       try {
-        const response = await api.get(`/events/${this.eventId}`);
+        const response = await api.get(`/public/${this.eventId}`);
         this.event = response.data.data;
       } catch (error) {
         console.error("Error fetching event data:", error);
@@ -380,9 +344,7 @@ export default {
     },
     // Cho phép cập nhật Zone nếu sự kiện cách hiện tại hơn 7 ngày
     canUpdateZone() {
-      if (!this.event || !this.event.eventStartDate || this.event.eventStatus === "CANCELLED")
-    return false;
-
+      if (!this.event || !this.event.eventStartDate) return false;
       const now = new Date();
       const eventDate = new Date(this.event.eventStartDate);
       const diffTime = eventDate.getTime() - now.getTime();

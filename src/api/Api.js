@@ -38,9 +38,9 @@ api.interceptors.response.use(
             const message = error.response.data?.message || 'An error occurred';
 
             if (status === 401) {
-                toast.error(`Unauthorized: ${message}`);
+                toast.error(`Unauthorized: ${message}. Vui lòng đăng nhập để sử dụng tính năng của hệ thống.` );
             } else if (status === 403) {
-                toast.error(`Access Denied: ${message}`);
+                toast.error(`Access Denied: ${message}. Bạn không có đủ quyền để truy cập tính năng này`);
             } else {
                 toast.error(`Error ${status}: ${message}`);
             }

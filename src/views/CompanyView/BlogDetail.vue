@@ -84,9 +84,9 @@ export default {
         },
     },
     methods: {
-        // openLightbox(index) {
-        //     this.lightboxIndex = index;
-        // },
+        openLightbox(index) {
+            this.lightboxIndex = index;
+        },
         async fetchUserInfo() {
             try {
                 const res = await api.get(`/companies/${this.user.id}`);

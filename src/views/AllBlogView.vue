@@ -17,11 +17,10 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="heart-container">
-                    <button @click.stop="toggleEmotion(blog.blogId)" :class="{ 'active': blog.isLiked }"
-                        class="btn btn-heart">❤️</button>
+                <div class="heart-container">
+                    <button @click.stop="toggleEmotion(blog.blogId)" :class="{ 'active': blog.isLiked }" class="btn btn-heart"><i class="fa-solid fa-heart"></i></button>
                     <span>{{ blog.blogEmotionsNumber }} thả tim</span>
-                </div> -->
+                </div>
             </div>
         </div>
         <div v-else>
@@ -29,6 +28,7 @@
         </div>
     </div>
 </template>
+
 
 
 
@@ -78,19 +78,17 @@ export default {
         },
         async fetchBlogs() {
             try {
-                const response = await api.get('/blog'); // Đảm bảo gọi đúng endpoint
+                const response = await api.get('/blog/with-likes', {
+                    params: { userId: this.user.id }
+                });
                 if (response.status === 200) {
-                    this.blogs = response.data;
+                    this.blogs = response.data.map(data => {
+                        let blog = data.blog;
+                        blog.isLiked = data.isLiked;
+                        return blog;
+                    });
                     // Sắp xếp bài viết theo ngày tạo giảm dần (bài viết mới nhất lên đầu)
                     this.blogs.sort((a, b) => new Date(b.blogCreateDate) - new Date(a.blogCreateDate));
-                    // Cập nhật trạng thái thả tim cho từng blog
-                    this.blogs.forEach(blog => {
-                        if (blog.likedBy) {
-                            blog.isLiked = blog.likedBy.includes(this.user.id);
-                        } else {
-                            blog.isLiked = false;
-                        }
-                    });
                 }
             } catch (error) {
                 console.log(error);
@@ -98,31 +96,32 @@ export default {
             }
         },
         viewBlogDetail(blogId) {
-            this.$router.push(`/company/blog/${blogId}`); // Cập nhật đường dẫn đúng
+            this.$router.push(`/company/blog/${blogId}`);
         },
         async toggleEmotion(blogId) {
-            try {
-                console.log("userId", this.userInfo?.id);
-                const response = await api.post(`/blog/${blogId}/emotion`, null, {
-                    params: { userId: this.userInfo?.id }
-                });
-                if (response.status === 200) {
-                    const blog = this.blogs.find(blog => blog.blogId === blogId);
-                    blog.isLiked = response.data.isLiked;
-                    blog.blogEmotionsNumber = response.data.blogEmotionsNumber;
-                    this.$toast.success('Thay đổi trạng thái thả tim thành công!');
-                }
-            } catch (error) {
-                console.log(error);
-                this.$toast.error('Lỗi xảy ra trong quá trình thả tim');
+        try {
+            const response = await api.post(`/blog/${blogId}/emotion`, null, {
+                params: { userId: this.user.id }
+            });
+            if (response.status === 200) {
+                const blog = this.blogs.find(blog => blog.blogId === blogId);
+                blog.isLiked = response.data.isLiked;
+                blog.blogEmotionsNumber = response.data.blogEmotionsNumber;
+                this.$toast.success('Thay đổi trạng thái thả tim thành công!');
             }
+        } catch (error) {
+            console.log(error);
+            this.$toast.error('Lỗi xảy ra trong quá trình thả tim');
         }
+    }
+
     },
     created() {
         this.fetchBlogs();
         this.fetchUserInfo();
     }
 };
+
 </script>
 
 <style scoped>
@@ -205,6 +204,8 @@ export default {
 .btn-heart:focus {
     outline: none;
 }
+
+
 </style>
 
 

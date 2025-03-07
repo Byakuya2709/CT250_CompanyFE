@@ -1,12 +1,11 @@
 <template>
     <div class="container">
-        <h2><strong>Quản lý bài viết của bạn</strong></h2>
+        <h2>Quản lý bài viết của bạn</h2>
         <div v-if="blogs.length">
             <div v-for="blog in blogs" :key="blog.blogId" class="blog-summary">
                 <h3 class="blog-title">{{ blog.blogSubject }}</h3>
                 <p><strong>Ngày tạo:</strong> {{ new Date(blog.blogCreateDate).toLocaleString() }}</p>
                 <p class="blog-content">{{ blog.blogContent }}</p>
-                <button @click="viewBlogDetail(blog.blogId)" class="btn btn-secondary">Xem chi tiết</button>
                 <button @click="editBlog(blog.blogId)" class="btn btn-primary">Chỉnh sửa</button>
                 <button @click="deleteBlog(blog.blogId)" class="btn btn-danger">Xóa</button>
             </div>
@@ -19,8 +18,7 @@
 
 <script>
 import { api } from "@/api/Api";
-import { useCookies } from "vue3-cookies";
-
+import { useCookies } from 'vue3-cookies';
 const { cookies } = useCookies();
 
 export default {
@@ -28,6 +26,7 @@ export default {
         return {
             blogs: [],
             userInfo: {},
+            email: '',
         };
     },
     computed: {
@@ -65,15 +64,13 @@ export default {
             try {
                 const response = await api.get(`/blog/user/${this.user.id}`);
                 if (response.status === 200) {
-                    this.blogs = response.data.data; // Đảm bảo lấy đúng dữ liệu
+                    this.blogs = response.data.data; // Đồng bộ với cấu trúc dữ liệu trả về từ API
                 }
             } catch (error) {
                 console.error("Lỗi xảy ra trong quá trình lấy danh sách bài viết:", error);
+                console.error("Chi tiết lỗi:", error.response);
                 this.$toast.error("Lỗi xảy ra trong quá trình lấy danh sách bài viết");
             }
-        },
-        viewBlogDetail(blogId) {
-            this.$router.push(`/company/blog/${blogId}`);
         },
         editBlog(blogId) {
             this.$router.push(`/blog/edit/${blogId}`);
@@ -96,6 +93,7 @@ export default {
         this.fetchUserBlogs();
     }
 };
+
 </script>
 
 <style scoped>

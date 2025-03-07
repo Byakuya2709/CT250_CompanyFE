@@ -2,8 +2,8 @@
     <div class="container">
         <h2><strong>Tất cả các bài viết</strong></h2>
         <div v-if="blogs.length">
-            <div v-for="blog in blogs" :key="blog.blogId" class="blog-summary">
-                <h3 @click="viewBlogDetail(blog.blogId)" class="blog-title">{{ blog.blogSubject }}</h3>
+            <div v-for="blog in blogs" :key="blog.blogId" class="blog-summary" @click="viewBlogDetail(blog.blogId)">
+                <h3 class="blog-title">{{ blog.blogSubject }}</h3>
                 <p><strong>Ngày tạo:</strong> {{ new Date(blog.blogCreateDate).toLocaleString() }}</p>
                 <p class="blog-content">{{ blog.blogContent }}</p>
                 <div v-if="blog.eventListImgURL && blog.eventListImgURL.length" class="image-grid">
@@ -18,7 +18,7 @@
                     </div>
                 </div>
                 <!-- <div class="heart-container">
-                    <button @click="toggleEmotion(blog.blogId)" :class="{ 'active': blog.isLiked }"
+                    <button @click.stop="toggleEmotion(blog.blogId)" :class="{ 'active': blog.isLiked }"
                         class="btn btn-heart">❤️</button>
                     <span>{{ blog.blogEmotionsNumber }} thả tim</span>
                 </div> -->
@@ -29,6 +29,7 @@
         </div>
     </div>
 </template>
+
 
 
 <script>
@@ -140,12 +141,8 @@ export default {
 }
 
 .blog-title {
-    color: #007bff;
-    cursor: pointer;
-}
-
-.blog-title:hover {
-    text-decoration: underline;
+    font-size: 24px; /* Thay đổi kích thước font chữ */
+    color: #333; /* Thay đổi màu sắc chữ */
 }
 
 .blog-content {
@@ -209,5 +206,7 @@ export default {
     outline: none;
 }
 </style>
+
+
 
 

@@ -6,6 +6,14 @@
                 <h3 class="blog-title">{{ blog.blogSubject }}</h3>
                 <p><strong>Ngày tạo:</strong> {{ new Date(blog.blogCreateDate).toLocaleString() }}</p>
                 <p class="blog-content">{{ blog.blogContent }}</p>
+                
+                <!-- Hiển thị hình ảnh -->
+                <div v-if="blog.eventListImgURL && blog.eventListImgURL.length" class="image-grid">
+                    <div v-for="(url, index) in blog.eventListImgURL" :key="index" class="image-container">
+                        <img :src="url" alt="Blog Image" class="img-fluid my-2" />
+                    </div>
+                </div>
+
                 <button @click="editBlog(blog.blogId)" class="btn btn-primary">Chỉnh sửa</button>
                 <button @click="deleteBlog(blog.blogId)" class="btn btn-danger">Xóa</button>
             </div>
@@ -15,6 +23,7 @@
         </div>
     </div>
 </template>
+
 
 <script>
 import { api } from "@/api/Api";
@@ -74,6 +83,7 @@ export default {
                 this.$toast.error("Lỗi xảy ra trong quá trình lấy danh sách bài viết");
             }
         },
+
         editBlog(blogId) {
             this.$router.push(`/blog/edit/${blogId}`);
         },
@@ -95,8 +105,6 @@ export default {
         this.fetchUserBlogs();
     }
 };
-
-
 </script>
 
 <style scoped>
@@ -120,6 +128,23 @@ export default {
 
 .blog-content {
     margin-top: 5px;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Hiển thị 3 cột */
+    gap: 10px;
+}
+
+.image-container {
+    position: relative;
+}
+
+.img-fluid {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
 }
 
 .btn-primary {

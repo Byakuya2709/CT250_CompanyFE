@@ -152,7 +152,9 @@ export default {
   },
   methods: {
     goBlogDetail(blog) {
-      this.$router.push(`/company/events/${blog.eventId}/blogs/${blog.blogId}`);
+      this.$router.push(
+        `/company/${this.filters.userId}/events/${blog.eventId}/blogs/${blog.blogId}`
+      );
     },
     async likeBlog(blogId) {
       try {
@@ -231,10 +233,18 @@ export default {
 </script>
 
 <style>
-button {
-  transition: background 0.2s;
-}
 button:hover:not(:disabled) {
   background: #ddd;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Giới hạn 2 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  max-height: 3em; /* Điều chỉnh theo font-size */
+  line-height: 1.5em; /* Đảm bảo đúng 2 dòng */
 }
 </style>

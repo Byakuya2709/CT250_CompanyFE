@@ -315,12 +315,12 @@ export default {
   methods: {
     goBlogDetail(blogId) {
       this.$router.push(
-        `/company/events/${this.event.eventId}/blogs/${blogId}`
+        `/company/${this.event.eventCompanyId}/events/${this.event.eventId}/blogs/${blogId}`
       );
     },
     async likeBlog(blogId) {
       try {
-        const userId = this.event.companyId; // Lấy userId từ dữ liệu hiện có
+        const userId = this.event.eventCompanyId; // Lấy userId từ dữ liệu hiện có
         const res = await api.post(`/blogs/${blogId}/emotion`, null, {
           params: { userId }, // Gửi userId qua query parameters
         });

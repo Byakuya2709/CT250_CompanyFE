@@ -131,6 +131,12 @@ const router = createRouter({
           name: "Blogs",
           component: () => import("../views/CompanyView/BlogManager.vue"),
         },
+        {
+          path: ":companyId/events/:eventId/blogs/:blogId",
+          name: "BlogsDetails",
+          component: () => import("../views/EventView/BlogDetail.vue"),
+          meta: { requiresAuth: true, role: "COMPANY" },
+        },
         // {
         //   path: ":companyId/create/event/:eventId/submission",
         //   name: "EventSubmissions",
@@ -161,12 +167,12 @@ const router = createRouter({
       component: () => import("../views/EventView/EventDetail.vue"),
       meta: { requiresAuth: true, role: "COMPANY" },
     },
-    {
-      path: "/company/events/:eventId/blogs/:blogId",
-      name: "BlogsDetails",
-      component: () => import("../views/EventView/BlogDetail.vue"),
-      meta: { requiresAuth: true, role: "COMPANY" },
-    },
+    // {
+    //   path: "/company/events/:eventId/blogs/:blogId",
+    //   name: "BlogsDetails",
+    //   component: () => import("../views/EventView/BlogDetail.vue"),
+    //   meta: { requiresAuth: true, role: "COMPANY" },
+    // },
 
     {
       path: "/company/events/all",

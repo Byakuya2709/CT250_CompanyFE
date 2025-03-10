@@ -265,6 +265,7 @@ export default {
         const response = await api.get(
           `/blogs/${this.$route.params.blogId}/comment?page=${this.page}&size=${this.size}`
         );
+        console.log(response)
         const newComments = response.data.data.content;
         this.comments = newComments;
         this.lastPage = response.data.data.last;
@@ -298,8 +299,23 @@ export default {
         console.error("Lỗi lấy thông tin người dùng:", error);
       }
     },
-    likeBlog() {
-      //   this.blog.blogEmotionsNumber += 1;
+    async likeBlog() {
+      try {
+        const userId = this.$route.params.companyId; // Lấy userId từ dữ liệu hiện có
+        const res = await api.post(`/blogs/${this.blog.blogId}/emotion`, null, {
+          params: { userId }, // Gửi userId qua query parameters
+        });
+        const updatedBlog = res.data;
+        console.log(updatedBlog);
+
+        // Cập nhật lại danh sách blogs
+        this.blog =updatedBlog;
+        
+      } catch (error) {
+        this.$toast.error(
+          error.response?.data?.message || "Lỗi khi thích bài viết"
+        );
+      }
     },
     loadMoreComments() {
       this.page += 1;

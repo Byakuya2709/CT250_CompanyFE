@@ -24,7 +24,7 @@ const router = createRouter({
     {
       path: "/event/:eventId",
       name: "PublicEvent",
-      component: () => import("../views/EventView/PublicEventDetail.vue"),
+      component: () => import("../views/EventView/EventDetail.vue"),
       meta: { requiresAuth: false },
     },
     {
@@ -137,12 +137,6 @@ const router = createRouter({
           component: () => import("../views/EventView/BlogDetail.vue"),
           meta: { requiresAuth: true, role: "COMPANY" },
         },
-        // {
-        //   path: ":companyId/create/event/:eventId/submission",
-        //   name: "EventSubmissions",
-        //   component: () => import("../views/CompanyView/CreateSubmission.vue"),
-        //   props: (route) => ({ userInfo: route.meta.userInfo }),
-        // },
         {
           path: ":companyId/events",
           name: "EventsList",

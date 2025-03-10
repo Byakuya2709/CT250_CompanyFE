@@ -393,7 +393,7 @@ export default {
       // Trích xuất các giá trị 'value' từ mảng đối tượng và nối chúng lại thành chuỗi
       this.event.eventTags = this.eventTagsList
         .map((tag) => tag.value)
-        .join("_");
+        .join("|");
     },
   },
   methods: {

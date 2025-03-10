@@ -238,6 +238,7 @@
         <!-- Cảm xúc -->
         <div class="flex items-center gap-4 mt-2 text-gray-500">
           <button
+          :disabled="this.$authStore.role == 'ADMIN'"
             @click="likeBlog(blog.blogId)"
             class="flex items-center gap-2 text-gray-500 hover:text-red-500 transition"
           >

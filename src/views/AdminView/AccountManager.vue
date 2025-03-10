@@ -1,10 +1,13 @@
 <template>
   <div class="container mt-4 p-4 bg-white shadow rounded">
     <h2 class="text-center text-primary fw-bold mb-4">Quản lý tài khoản</h2>
-    <button class="btn-small my-2" style="width: auto" @click="showModal = true">
+    <button
+      class="btn-small my-2"
+      style="width: auto"
+      @click="showModal = true"
+    >
       <i class="fas fa-plus"></i> Tạo tài khoản mới
     </button>
-
 
     <div v-if="showModal" class="modal-overlay">
       <div class="modal-content">
@@ -12,11 +15,21 @@
         <form @submit.prevent="createAccount">
           <div class="mb-3">
             <label>Email:</label>
-            <input v-model="newAccount.email" type="email" required class="form-control" />
+            <input
+              v-model="newAccount.email"
+              type="email"
+              required
+              class="form-control"
+            />
           </div>
           <div class="mb-3">
             <label>Mật khẩu:</label>
-            <input v-model="newAccount.password" type="password" required class="form-control" />
+            <input
+              v-model="newAccount.password"
+              type="password"
+              required
+              class="form-control"
+            />
           </div>
           <div class="mb-3">
             <label>Vai trò:</label>
@@ -27,7 +40,13 @@
           </div>
           <div class="d-flex justify-content-between">
             <button type="submit" class="btn btn-success">Tạo tài khoản</button>
-            <button type="button" @click="showModal = false" class="btn btn-secondary">Hủy</button>
+            <button
+              type="button"
+              @click="showModal = false"
+              class="btn btn-secondary"
+            >
+              Hủy
+            </button>
           </div>
         </form>
       </div>
@@ -199,13 +218,12 @@ export default {
     },
   },
   methods: {
-
     async createAccount() {
       try {
         const res = await api.post("/admins/accounts", this.newAccount);
         this.$toast.success(res.data.message);
         // this.fetchAccounts();
-        this.accounts.push(res.data.data)
+        this.accounts.push(res.data.data);
         this.showModal = false;
       } catch (error) {
         this.$toast.error(
@@ -234,6 +252,18 @@ export default {
       }
     },
     async blockAccount(account) {
+      const result = await Swal.fire({
+        title: "Xác nhận xóa?",
+        text: "Bạn có chắc chắn muốn khóa tài khoản này?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Khóa",
+        cancelButtonText: "Hủy",
+      });
+
+      if (!result.isConfirmed) {
+        return;
+      }
       try {
         await api.patch(`/admins/blocked/account/${account.id}`);
         account.status = "INACTIVE"; // Cập nhật trạng thái ngay lập tức

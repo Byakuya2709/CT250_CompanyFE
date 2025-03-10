@@ -30,10 +30,12 @@ export default {
   methods: {
     async fetchTotalTicketPriceByStatus() {
       try {
-        const response = await api.get(`/reports/${this.$route.params.companyId}`);
+        const response = await api.get(
+          `/reports/${this.$route.params.companyId}`
+        );
         const data = response.data.data;
-          this.eventCountByStatus = data.eventCountByStatus;
-          this.totalTicketPriceByStatus = data.totalTicketPriceByStatus;
+        this.eventCountByStatus = data.eventCountByStatus;
+        this.totalTicketPriceByStatus = data.totalTicketPriceByStatus;
       } catch (error) {
         this.$toast.error(
           error.response?.data?.message || "Không thể kết nối đến hệ thống."
@@ -113,61 +115,100 @@ export default {
 <template>
   <div class="p-6 bg-gray-100 min-h-screen">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <!-- Card for Event Count by Status -->
-  <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-    <div class="p-6 border-b border-gray-200 flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-      <h5 class="ml-3 text-lg font-semibold text-gray-800">Tổng số sự kiện</h5>
-    </div>
-    <div class="p-6 space-y-4">
-      <ul v-if="eventCountByStatus && Object.keys(eventCountByStatus).length > 0">
-        <li v-for="(value, key) in eventCountByStatus" :key="key" class="flex items-center justify-between">
-          <div class="flex items-center space-x-2">
-            <span class="font-medium text-gray-700">{{ key }}:</span>
-            <span class="text-sm text-gray-500">{{ value }}</span>
-          </div>
-          <!-- Badge for Event Status -->
-         
-        </li>
-      </ul>
-      <p v-else class="text-center text-gray-500">No data available</p>
-    </div>
-  </div>
-
-  <!-- Card for Total Ticket Price by Status -->
-  <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-    <div class="p-6 border-b border-gray-200 flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7 7 7-7" />
-      </svg>
-      <h5 class="ml-3 text-lg font-semibold text-gray-800">Tổng số vé</h5>
-    </div>
-    <div class="p-6 space-y-4">
-      <ul v-if="totalTicketPriceByStatus && Object.keys(totalTicketPriceByStatus).length > 0">
-        <li v-for="(value, key) in totalTicketPriceByStatus" :key="key" class="flex items-center justify-between">
-          <div class="flex items-center space-x-2">
-            <span class="font-medium text-gray-700">{{ key }}:</span>
-            <span class="text-sm text-gray-500">{{ value | currency }}</span>
-          </div>
-          <!-- Colored Label for Ticket Status -->
-          <span
-            :class="{
-              'bg-blue-100 text-blue-800': key === 'PAID',
-              'bg-red-100 text-red-800': key === 'UNPAID'
-            }"
-            class="px-2 py-1 text-xs font-semibold rounded-full"
+      <!-- Card for Event Count by Status -->
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-6 border-b border-gray-200 flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 text-blue-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            {{ key }}
-          </span>
-        </li>
-      </ul>
-      <p v-else class="text-center text-gray-500">No data available</p>
-    </div>
-  </div>
-</div>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          <h5 class="ml-3 text-lg font-semibold text-gray-800">
+            Tổng số sự kiện
+          </h5>
+        </div>
+        <div class="p-6 space-y-4">
+          <ul
+            v-if="
+              eventCountByStatus && Object.keys(eventCountByStatus).length > 0
+            "
+          >
+            <li
+              v-for="(value, key) in eventCountByStatus"
+              :key="key"
+              class="flex items-center justify-between"
+            >
+              <div class="flex items-center space-x-2">
+                <span class="font-medium text-gray-700">{{ key }}:</span>
+                <span class="text-sm text-gray-500">{{ value }}</span>
+              </div>
+              <!-- Badge for Event Status -->
+            </li>
+          </ul>
+          <p v-else class="text-center text-gray-500">No data available</p>
+        </div>
+      </div>
 
+      <!-- Card for Total Ticket Price by Status -->
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-6 border-b border-gray-200 flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 text-green-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 8l7 7 7-7"
+            />
+          </svg>
+          <h5 class="ml-3 text-lg font-semibold text-gray-800">Tổng số vé</h5>
+        </div>
+        <div class="p-6 space-y-4">
+          <ul
+            v-if="
+              totalTicketPriceByStatus &&
+              Object.keys(totalTicketPriceByStatus).length > 0
+            "
+          >
+            <li
+              v-for="(value, key) in totalTicketPriceByStatus"
+              :key="key"
+              class="flex items-center justify-between"
+            >
+              <div class="flex items-center space-x-2">
+                <span class="font-medium text-gray-700">{{ key }}:</span>
+                <span class="text-sm text-gray-500">{{ value }}</span>
+              </div>
+              <!-- Colored Label for Ticket Status -->
+              <span
+                :class="{
+                  'bg-blue-100 text-blue-800': key === 'PAID',
+                  'bg-red-100 text-red-800': key === 'UNPAID',
+                }"
+                class="px-2 py-1 text-xs font-semibold rounded-full"
+              >
+                {{ key }}
+              </span>
+            </li>
+          </ul>
+          <p v-else class="text-center text-gray-500">No data available</p>
+        </div>
+      </div>
+    </div>
 
     <h1 class="text-2xl font-bold mb-4">Dashboard Thống Kê Sự Kiện</h1>
 

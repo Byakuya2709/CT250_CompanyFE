@@ -47,7 +47,8 @@
       <div
         v-for="blog in blogs"
         :key="blog.blogId"
-        class="border border-gray-300 p-4 rounded-lg shadow-sm"
+        class="border border-gray-300 p-4 rounded-lg shadow-sm relative"
+        @click="goBlogDetail(blog)"
       >
         <!-- Nội dung blog -->
         <div class="flex justify-between items-center">
@@ -75,7 +76,7 @@
         <!-- Cảm xúc -->
         <div class="flex items-center gap-4 mt-2 text-gray-500">
           <button
-            @click="likeBlog(blog.blogId)"
+            @click.stop="likeBlog(blog.blogId)"
             class="flex items-center gap-2 text-gray-500 hover:text-red-500 transition"
           >
             ❤️ {{ blog.blogEmotionsNumber }}
@@ -122,6 +123,7 @@ export default {
   data() {
     return {
       blogs: [],
+      showOptions: null, // ID của blog đang hiển thị menu
       currentPage: 0,
       totalPages: 1,
       loading: false,
@@ -151,6 +153,19 @@ export default {
     },
   },
   methods: {
+    toggleOptions(blogId) {
+      this.showOptions = this.showOptions === blogId ? null : blogId;
+    },
+    updateBlog(blog) {
+      console.log("Cập nhật blog:", blog);
+      // Thêm logic cập nhật blog ở đây (chẳng hạn mở form cập nhật)
+    },
+    deleteBlog(blogId) {
+      if (confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
+        console.log("Xóa blog với ID:", blogId);
+        // Gọi API hoặc xóa blog khỏi danh sách
+      }
+    },
     goBlogDetail(blog) {
       this.$router.push(
         `/company/${this.filters.userId}/events/${blog.eventId}/blogs/${blog.blogId}`
@@ -226,7 +241,7 @@ export default {
     },
   },
   mounted() {
-    // this.fetchBlogs();
+    this.fetchBlogs();
     this.fetchEvents();
   },
 };

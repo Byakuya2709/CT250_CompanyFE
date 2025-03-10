@@ -11,11 +11,91 @@
           <p class="text-gray-400 font-semibold">@{{ blog.blogUserId }}</p>
         </div>
       </div>
-
       <!-- Tiêu đề -->
-      <h1 class="text-xl font-bold text-gray-900 mb-3">
-        {{ blog.blogSubject }}
-      </h1>
+      <div class="flex items-center justify-between">
+        <h1 class="text-xl font-bold text-gray-900 mb-3">
+          {{ blog.blogSubject }}
+        </h1>
+        <div class="relative">
+          <button
+            @click="toggleOptions(blog.blogId)"
+            class="p-2 hover:bg-gray-200 rounded-full"
+          >
+            &#8942;
+          </button>
+
+          <!-- Menu cập nhật/xóa -->
+          <div
+            v-if="showOptions === blog.blogId"
+            class="absolute right-0 bg-white shadow-md rounded-md mt-1 z-10 w-32"
+          >
+            <button
+              @click="openEditModal(blog)"
+              class="block px-4 py-2 hover:bg-gray-100 w-full text-left"
+            >
+              📝 Cập nhật
+            </button>
+            <button
+              @click="deleteBlog(blog.blogId)"
+              class="block px-4 py-2 hover:bg-red-100 w-full text-left"
+            >
+              🗑️ Xóa
+            </button>
+          </div>
+
+          <!-- Modal chỉnh sửa -->
+          <div
+            v-if="showEditModal"
+            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+          >
+            <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+              <h2 class="text-lg font-bold mb-4">Chỉnh sửa bài viết</h2>
+
+              <!-- Input chỉnh sửa tiêu đề -->
+              <input
+                v-model="editedBlog.blogSubject"
+                type="text"
+                class="w-full border p-2 rounded mb-3"
+                placeholder="Tiêu đề bài viết"
+              />
+
+              <!-- Input chỉnh sửa nội dung -->
+              <textarea
+                v-model="editedBlog.blogContent"
+                class="w-full border p-2 rounded mb-3"
+                placeholder="Nội dung bài viết"
+                rows="8"
+              ></textarea>
+
+              <!-- Input chỉnh sửa loại bài viết -->
+
+              <input
+                v-model="editedBlog.blogType"
+                type="text"
+                class="w-full border p-2 rounded mb-3"
+                placeholder="Loại bài viết"
+              />
+
+              <!-- Nút lưu hoặc hủy -->
+              <div class="flex justify-end gap-2">
+                <button
+                  @click="closeEditModal"
+                  class="px-4 py-2 bg-gray-300 rounded"
+                >
+                  Hủy
+                </button>
+                <button
+                  @click="updateBlog"
+                  class="px-4 py-2 bg-blue-500 text-white rounded"
+                  :disabled="isUnchanged"
+                >
+                  Lưu
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Nội dung bài viết -->
       <p class="text-gray-800 text-lg leading-relaxed mb-4">
@@ -92,6 +172,7 @@
       >
         ❤️ {{ blog.blogEmotionsNumber }}
       </button>
+      <!-- Nút ba chấm -->
 
       <!-- Bình luận -->
       <div class="mt-6">
@@ -99,7 +180,7 @@
         <div
           v-for="comment in comments"
           :key="comment.cmtId"
-          class="flex gap-3 p-3 border-b"
+          class="flex gap-3 p-3 border-b items-center"
         >
           <div>
             <img
@@ -120,6 +201,12 @@
               new Date(comment.cmtCreateDate).toLocaleString()
             }}</small>
           </div>
+          <button
+            @click="deleteComment(comment.cmtId)"
+            class="text-red-500 text-sm hover:underline"
+          >
+            Xóa
+          </button>
         </div>
 
         <!-- Nút Xem thêm bình luận -->
@@ -209,9 +296,14 @@ button:hover {
 
 <script>
 import { api } from "@/api/Api";
+import Swal from "sweetalert2";
 export default {
   data() {
     return {
+      showEditModal: false,
+      editedBlog: {},
+
+      showOptions: null,
       blogs: [],
       blog: {},
       event: {},
@@ -225,7 +317,95 @@ export default {
       currentImageIndex: 0,
     };
   },
+  computed: {
+    isUnchanged() {
+      return (
+        this.editedBlog.blogSubject === this.blog.blogSubject &&
+        this.editedBlog.blogContent === this.blog.blogContent &&
+        this.editedBlog.blogType === this.blog.blogType
+      );
+    },
+  },
   methods: {
+    openEditModal(blog) {
+      this.editedBlog = { ...blog }; // Sao chép dữ liệu bài viết vào biến chỉnh sửa
+      this.showEditModal = true;
+    },
+
+    // Đóng modal
+    closeEditModal() {
+      this.showEditModal = false;
+      this.editedBlog = {}; // Xóa dữ liệu sau khi đóng
+    },
+    toggleOptions(blogId) {
+      this.showOptions = this.showOptions === blogId ? null : blogId;
+    },
+    async updateBlog() {
+      try {
+        const formattedBlogType = this.editedBlog.blogType.replace(/\s+/g, "_"); // Thay dấu cách bằng "_"
+
+        const res = await api.patch(`/blogs/${this.editedBlog.blogId}`, {
+          blogSubject: this.editedBlog.blogSubject,
+          blogContent: this.editedBlog.blogContent,
+          blogType: formattedBlogType,
+        });
+        this.blog = res.data.data;
+        this.$toast.success("Bài viết đã được cập nhật!");
+        this.closeEditModal();
+      } catch (error) {
+        this.$toast.error(
+          error.response?.data?.message || "Lỗi khi cập nhật bài viết"
+        );
+        console.error("Lỗi khi cập nhật bài viết:", error);
+      }
+    },
+    async deleteBlog(blogId) {
+      const result = await Swal.fire({
+        title: "Xác nhận xóa?",
+        text: "Bạn có chắc chắn muốn xóa Bài viết này?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Xóa",
+        cancelButtonText: "Hủy",
+      });
+
+      if (!result.isConfirmed) {
+        return;
+      }
+      try {
+        await api.delete(`/blogs/${blogId}`);
+        this.$toast.success("Bài viết đã được xóa thành công");
+        this.$router.push(`/company/${this.$route.params.companyId}/blogs`);
+      } catch (error) {
+        this.$toast.error(
+          error.response?.data?.message || "Lỗi khi xóa tài khoản"
+        );
+        console.error("Lỗi khi xóa tài khoản:", error);
+      }
+    },
+    async deleteComment(commentId) {
+      const result = await Swal.fire({
+        title: "Xác nhận xóa?",
+        text: "Bạn có chắc chắn muốn xóa bình luận này?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Xóa",
+        cancelButtonText: "Hủy",
+      });
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      try {
+        await api.delete(`/blogs/comment/${commentId}`);
+        this.comments = this.comments.filter((c) => c.cmtId !== commentId);
+        this.$toast.success("Đã xóa bình luận!");
+      } catch (error) {
+        this.$toast.error("Lỗi khi xóa bình luận!");
+        console.error("Lỗi khi xóa bình luận:", error);
+      }
+    },
     openImageViewer(index) {
       this.currentImageIndex = index;
       this.showImageViewer = true;
@@ -265,7 +445,7 @@ export default {
         const response = await api.get(
           `/blogs/${this.$route.params.blogId}/comment?page=${this.page}&size=${this.size}`
         );
-        console.log(response)
+        console.log(response);
         const newComments = response.data.data.content;
         this.comments = newComments;
         this.lastPage = response.data.data.last;
@@ -309,8 +489,7 @@ export default {
         console.log(updatedBlog);
 
         // Cập nhật lại danh sách blogs
-        this.blog =updatedBlog;
-        
+        this.blog = updatedBlog;
       } catch (error) {
         this.$toast.error(
           error.response?.data?.message || "Lỗi khi thích bài viết"

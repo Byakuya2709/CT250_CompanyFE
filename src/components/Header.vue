@@ -2,11 +2,15 @@
   <header id="header" class="text-white">
     <nav class="container mx-auto flex items-center justify-between py-4">
       <!-- Logo -->
-      <router-link class="text-xl font-bold" to="/" style="color: black; font-size: 35px;">
+      <router-link
+        class="text-xl font-bold"
+        to="/"
+        style="color: black; font-size: 35px"
+      >
         {{ isAdmin ? "ADMIN" : "COMPANY" }}
       </router-link>
       <!-- Search Bar -->
-      <div class="relative w-1/3">
+      <!-- <div class="relative w-1/3">
         <input
           type="text"
           name="textSearch"
@@ -14,71 +18,99 @@
           class="w-full p-2 pl-4 pr-10 border border-gray-600 rounded-md  text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <i class="fa-solid fa-magnifying-glass absolute right-3 top-2.5 text-gray-400"></i>
-      </div>
+      </div> -->
       <!-- Thanh menu hiển thị trên PC -->
       <ul class="hidden md:flex items-center space-x-4">
         <li v-if="isAuthenticated">
-          <router-link class="hover:text-blue-400" :to="isAdmin ? '/admin' : '/company'">
+          <router-link
+            class="hover:text-blue-400"
+            :to="isAdmin ? '/admin' : '/company'"
+          >
             {{ isAdmin ? "Quản Lý - ADMIN" : "Quản Lý" }}
           </router-link>
         </li>
         <li v-if="!isAuthenticated">
-          <router-link class="hover:text-blue-400" to="/company/signup">Tạo tài khoản</router-link>
+          <router-link class="hover:text-blue-400" to="/company/signup"
+            >Tạo tài khoản</router-link
+          >
         </li>
         <li v-if="!isAuthenticated">
-          <router-link class="hover:text-blue-400" to="/company/login">Đăng nhập</router-link>
+          <router-link class="hover:text-blue-400" to="/company/login"
+            >Đăng nhập</router-link
+          >
         </li>
         <li v-if="!isAuthenticated">
-          <router-link class="hover:text-blue-400" to="/admin/login">Đăng nhập ADMIN</router-link>
+          <router-link class="hover:text-blue-400" to="/admin/login"
+            >Đăng nhập ADMIN</router-link
+          >
         </li>
         <li>
-            <router-link class="hover:text-blue-400" to="/about">About</router-link>
-          </li>
+          <router-link class="hover:text-blue-400" to="/about"
+            >About</router-link
+          >
+        </li>
         <li v-if="isAuthenticated">
-          <a class="hover:text-red-400 cursor-pointer" @click.prevent="logout">Đăng xuất</a>
+          <a class="hover:text-red-400 cursor-pointer" @click.prevent="logout"
+            >Đăng xuất</a
+          >
         </li>
       </ul>
 
       <!-- Nút menu cho Mobile -->
-      <button class="md:hidden text-white text-2xl" @click="toggleMenu">
+      <button class="md:hidden text-black text-2xl" @click="toggleMenu">
         <i :class="isMenuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
       </button>
     </nav>
 
     <!-- Sidebar ẩn bên phải (chỉ hiển thị trên mobile) -->
     <transition name="slide">
-      
       <div
         v-if="isMenuOpen"
-        class="fixed top-0 right-0 w-2/3 h-full bg-white  text-black p-6 shadow-lg z-50 md:hidden"
+        class="fixed top-0 right-0 w-2/3 h-full bg-white text-black p-6 shadow-lg z-50 md:hidden"
       >
-        <button class="absolute top-4 right-4 text-2xl" @click="toggleMenu">
-          <i class="fa-solid fa-xmark"></i>
+        <button
+          class="absolute top-4 right-4 text-2xl text-black"
+          @click="toggleMenu"
+        >
+          <i class="fa-solid fa-xmark text-black"></i>
         </button>
 
         <ul class="space-y-4 mt-10">
           <li v-if="isAuthenticated">
-            <router-link class="hover:text-blue-400" :to="isAdmin ? '/admin' : '/company'">
+            <router-link
+              class="hover:text-blue-400"
+              :to="isAdmin ? '/admin' : '/company'"
+            >
               {{ isAdmin ? "ADMIN Dashboard" : "Dashboard" }}
             </router-link>
           </li>
           <li v-if="!isAuthenticated">
-            <router-link class="hover:text-blue-400" to="/company/signup">Tạo tài khoản</router-link>
+            <router-link class="hover:text-blue-400" to="/company/signup"
+              >Tạo tài khoản</router-link
+            >
           </li>
           <li v-if="!isAuthenticated">
-            <router-link class="hover:text-blue-400" to="/company/login">Đăng nhập</router-link>
+            <router-link class="hover:text-blue-400" to="/company/login"
+              >Đăng nhập</router-link
+            >
           </li>
           <li v-if="!isAuthenticated">
-            <router-link class="hover:text-blue-400" to="/admin/login">Đăng nhập ADMIN</router-link>
+            <router-link class="hover:text-blue-400" to="/admin/login"
+              >Đăng nhập ADMIN</router-link
+            >
           </li>
           <li>
-            <router-link class="hover:text-blue-400" to="/about">About</router-link>
+            <router-link class="hover:text-blue-400" to="/about"
+              >About</router-link
+            >
           </li>
           <li v-if="isAuthenticated">
-            <a class="hover:text-red-400 cursor-pointer" @click.prevent="logout">Đăng xuất</a>
+            <a class="hover:text-red-400 cursor-pointer" @click.prevent="logout"
+              >Đăng xuất</a
+            >
           </li>
         </ul>
-         <ul class="mt-3">
+        <!-- <ul class="mt-3">
         <input
           type="text"
           name="textSearch"
@@ -86,7 +118,7 @@
           class="w-full p-2 pl-4 pr-10 border border-gray-600 rounded-md  text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <i class="fa-solid fa-magnifying-glass absolute right-3 top-2.5 text-gray-400"></i>
-         </ul>
+         </ul> -->
       </div>
     </transition>
   </header>

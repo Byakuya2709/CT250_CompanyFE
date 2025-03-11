@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router"; // Dùng createWebHistory
-import HomeView from "../views/HomeView.vue";
 import { jwtDecode } from "jwt-decode";
 
 import { useCookies } from "vue3-cookies";

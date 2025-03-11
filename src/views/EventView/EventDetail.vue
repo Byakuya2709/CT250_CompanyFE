@@ -221,7 +221,7 @@
             {{ new Date(blog.blogCreateDate).toLocaleDateString() }}
           </p>
         </div>
-        <p class="text-gray-700 mt-1">{{ blog.blogContent }}</p>
+        <p class="text-gray-700 mt-1 truncate">{{ blog.blogContent }}</p>
 
         <!-- Hình ảnh nếu có -->
         <div
@@ -238,7 +238,7 @@
         <!-- Cảm xúc -->
         <div class="flex items-center gap-4 mt-2 text-gray-500">
           <button
-          :disabled="this.$authStore.role == 'ADMIN'"
+            :disabled="this.$authStore.role == 'ADMIN'"
             @click="likeBlog(blog.blogId)"
             class="flex items-center gap-2 text-gray-500 hover:text-red-500 transition"
           >

@@ -59,7 +59,9 @@
             {{ new Date(blog.blogCreateDate).toLocaleDateString() }}
           </p>
         </div>
-        <p class="text-gray-700 mt-1">{{ blog.blogContent }}</p>
+        <p class="text-gray-700 mt-1">
+          {{ blog.blogContent.substring(0, 50) }} ...
+        </p>
 
         <!-- Hình ảnh nếu có -->
         <div

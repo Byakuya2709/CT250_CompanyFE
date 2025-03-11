@@ -1,5 +1,6 @@
 <template>
   <div class="max-w-3xl mx-auto p-8 bg-white shadow-lg rounded-xl">
+    <loading :active="loading" />
     <h2 class="text-3xl font-semibold mb-6 text-gray-800">Đăng Bài Viết</h2>
     <form @submit.prevent="submitBlog" class="space-y-6">
       <div>
@@ -101,7 +102,11 @@
 <script>
 import { api } from "@/api/Api";
 import { blogType } from "@/composable/blogType";
+
+import Loading from "vue-loading-overlay";
+import "vue-loading-overlay/dist/css/index.css";
 export default {
+  components: { Loading },
   data() {
     return {
       blog: {
@@ -113,6 +118,7 @@ export default {
         eventId: "",
         blogEmotionsNumber: 0,
       },
+      loading: false,
       events: [],
       blogType,
       imageInput: "",
@@ -148,8 +154,10 @@ export default {
       }
     },
     async uploadImages() {
+      const input = this.blog.blogSubject;
+      const output = input.replace(/[^a-zA-ZÀ-ỹ0-9\s]/g, "");
       return await api.post("/media/upload/events", this.filesData, {
-        params: { eventTitle: this.blog.blogSubject },
+        params: { eventTitle: output },
         headers: { "Content-Type": "multipart/form-data" },
       });
     },
@@ -165,6 +173,7 @@ export default {
       console.log(this.listImages);
     },
     async submitBlog() {
+      this.loading = true;
       try {
         const imageResponse = await this.uploadImages();
         console.log("Full imageResponse:", imageResponse);
@@ -197,6 +206,8 @@ export default {
       } catch (error) {
         console.error("Error in submitBlog:", error);
         this.$toast.error(error.response?.data?.message || "Đã xảy ra lỗi");
+      } finally {
+        this.loading = false;
       }
     },
   },

@@ -1,5 +1,6 @@
 <template>
   <div class="container py-5">
+    <loading :active="loading" />
     <h1 class="text-center mb-4">Tạo Sự Kiện Mới</h1>
     <form @submit.prevent="handleSubmit">
       <!-- Tiêu đề sự kiện -->
@@ -314,9 +315,13 @@ import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.css";
 import { useCookies } from "vue3-cookies";
 const { cookies } = useCookies(); // Lấy cookie API
+
+import Loading from "vue-loading-overlay";
+import "vue-loading-overlay/dist/css/index.css";
 export default {
   components: {
     Multiselect,
+    Loading,
   },
   name: "CreateEvent",
   data() {
@@ -342,6 +347,8 @@ export default {
         eventPrice: 0,
         eventListImgURL: [],
       },
+
+      loading: false,
       eventTagsList: [],
       errors: {
         eventTitle: "Tiêu đề sự kiện không được để trống",
@@ -407,6 +414,7 @@ export default {
       this.event.eventListArtist.splice(index, 1);
     },
     async handleSubmit() {
+      this.loading = true;
       try {
         const posterResponse = await this.uploadPoster();
         if (posterResponse.data.data.imageUrl) {
@@ -436,6 +444,7 @@ export default {
       } catch (error) {
         console.log(error);
         this.$toast.error(error.response?.data?.message || "Đã xảy ra lỗi");
+        this.loading = false;
       }
 
       this.event.eventDuration =
@@ -445,28 +454,31 @@ export default {
         ...this.event, // Sao chép tất cả thuộc tính từ this.event
       };
 
-      // In ra đối tượng event mới
-      console.log(newEvent);
-      this.event.eventListImgURL = [];
       try {
         const response = await api.post("/events", newEvent);
         console.log(response);
         this.$toast.success(response.data.message);
       } catch (error) {
         this.$toast.error(error.response?.data?.message || "Đã xảy ra lỗi");
+      } finally {
+        this.loading = false;
       }
     },
     async uploadPoster() {
       const formData = new FormData();
       formData.append("file", this.eventPosterUrl);
+      const input = this.event.eventTitle;
+      const output = input.replace(/[^a-zA-ZÀ-ỹ0-9\s]/g, "");
       return await api.post("/media/upload/events/poster", formData, {
-        params: { eventTitle: this.event.eventTitle },
+        params: { eventTitle: output },
         headers: { "Content-Type": "multipart/form-data" },
       });
     },
     async uploadImages() {
+      const input = this.event.eventTitle;
+      const output = input.replace(/[^a-zA-ZÀ-ỹ0-9\s]/g, "");
       return await api.post("/media/upload/events", this.filesData, {
-        params: { eventTitle: this.event.eventTitle },
+        params: { eventTitle: output },
         headers: { "Content-Type": "multipart/form-data" },
       });
     },

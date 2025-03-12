@@ -20,7 +20,6 @@ export default {
     async fetchTickets(page = 0) {
       this.loading = true;
       try {
-        if (this.filters.eventId == "") return;
         const params = new URLSearchParams({ page, size: 10 });
         if (this.filters.eventId)
           params.append("eventId", this.filters.eventId);
@@ -65,6 +64,11 @@ export default {
     applyFilters() {
       this.fetchTickets(0);
     },
+    clearFilters() {
+      this.filters.eventId = "";
+      this.filters.status = "";
+      this.filters.userEmail = "";
+    },
     changePage(newPage) {
       if (newPage >= 0 && newPage < this.totalPages) {
         this.fetchTickets(newPage);
@@ -84,14 +88,24 @@ export default {
 
     <!-- Bộ lọc -->
     <div class="mb-6 flex flex-wrap gap-3">
-      <select v-model="filters.eventId" class="border p-2 rounded-md w-1/3 focus:ring focus:ring-blue-300">
+      <select
+        v-model="filters.eventId"
+        class="border p-2 rounded-md w-1/3 focus:ring focus:ring-blue-300"
+      >
         <option value="" disabled>Chọn sự kiện</option>
-        <option v-for="event in events" :key="event.eventId" :value="event.eventId">
+        <option
+          v-for="event in events"
+          :key="event.eventId"
+          :value="event.eventId"
+        >
           {{ event.eventTitle }}
         </option>
       </select>
 
-      <select v-model="filters.status" class="border p-2 rounded-md w-1/3 focus:ring focus:ring-blue-300">
+      <select
+        v-model="filters.status"
+        class="border p-2 rounded-md w-1/3 focus:ring focus:ring-blue-300"
+      >
         <option value="">Chọn trạng thái</option>
         <option value="PAID">✅ Đã Thanh Toán</option>
         <option value="UNPAID">⏳ Chưa Thanh Toán</option>
@@ -111,6 +125,12 @@ export default {
       >
         🔍 Lọc
       </button>
+      <button
+        @click="clearFilters"
+        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition"
+      >
+        Xóa
+      </button>
     </div>
 
     <!-- Hiển thị trạng thái tải -->
@@ -119,15 +139,17 @@ export default {
     <div v-else>
       <!-- Bảng vé -->
       <div class="overflow-x-auto">
-        <table class="w-full border border-gray-200 shadow-md rounded-lg overflow-hidden">
+        <table
+          class="w-full border border-gray-200 shadow-md rounded-lg overflow-hidden"
+        >
           <thead class="bg-blue-100 text-gray-700">
             <tr>
               <th class="p-3 border text-center">#</th>
-              <th class="p-3 border text-center"> Người đặt</th>
-              <th class="p-3 border text-center"> Ngày đặt / Ngày hết hạn</th>
+              <th class="p-3 border text-center">Người đặt</th>
+              <th class="p-3 border text-center">Ngày đặt / Ngày hết hạn</th>
               <th class="p-3 border text-center">Loại vé</th>
               <th class="p-3 border text-center">Giá</th>
-              <th class="p-3 border text-center"> Trạng thái</th>
+              <th class="p-3 border text-center">Trạng thái</th>
               <th class="p-3 border text-center">Vị trí</th>
               <th class="p-3 border text-center"></th>
             </tr>
@@ -142,7 +164,9 @@ export default {
               <td class="p-3 border">{{ ticket.ticketUserEmail }}</td>
 
               <td class="p-3 border">
-                📆 {{ new Date(ticket.ticketBookingTime).toLocaleDateString() }} <br />
+                📆
+                {{ new Date(ticket.ticketBookingTime).toLocaleDateString() }}
+                <br />
                 ⏳ {{ new Date(ticket.ticketExpiredTime).toLocaleDateString() }}
               </td>
               <td class="p-3 border">{{ ticket.ticketDuration }}</td>
@@ -152,9 +176,12 @@ export default {
               <td class="p-3 border">
                 <span
                   :class="{
-                    'text-green-600 font-semibold': ticket.ticketStatus === 'PAID',
-                    'text-yellow-600 font-semibold': ticket.ticketStatus === 'UNPAID',
-                    'text-red-600 font-semibold': ticket.ticketStatus === 'CANCELLED'
+                    'text-green-600 font-semibold':
+                      ticket.ticketStatus === 'PAID',
+                    'text-yellow-600 font-semibold':
+                      ticket.ticketStatus === 'UNPAID',
+                    'text-red-600 font-semibold':
+                      ticket.ticketStatus === 'CANCELLED',
                   }"
                 >
                   {{
@@ -198,10 +225,9 @@ export default {
           :disabled="currentPage >= totalPages - 1"
           class="px-4 py-2 bg-gray-300 rounded-md disabled:opacity-50 hover:bg-gray-400 transition"
         >
-          Tiếp 
+          Tiếp
         </button>
       </div>
     </div>
   </div>
 </template>
-

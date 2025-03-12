@@ -97,6 +97,7 @@
               <span class="fw-bold">{{ event.eventStatus }}</span>
             </li>
           </ul>
+
           <button
             class="btn btn-primary mt-2 mx-2"
             :disabled="!canUpdateZone"
@@ -127,12 +128,17 @@
           >
             <i class="fas fa-edit"></i> Cập nhật Sự Kiện
           </router-link>
+          <p class="text-sm text-red-500 mb-4 mt-2">
+            *Chỉ có thể cập nhật sự kiện trước 7 ngày trước khi sự kiện bắt đầu
+          </p>
         </div>
       </div>
     </div>
 
     <div class="event-descriptions">
-      <h3>Mô tả sự kiện</h3>
+      <h2 class="text-3xl font-bold text-white mb-6 text-center mt-4">
+        Mô Tả Sự Kiện
+      </h2>
       <p class="event-description">
         {{ isExpanded ? event.eventDescription : truncatedText }}
       </p>
@@ -146,7 +152,9 @@
     </div>
 
     <div class="event-tickets">
-      <h3>Đặt Vé Tại Đây</h3>
+      <h2 class="text-3xl font-bold text-white mb-6 text-center">
+        Thông Tin Vé
+      </h2>
       <div class="ticket-list">
         <div
           v-for="(remainingCapacity, day) in event.eventTicketCapacity"
@@ -198,7 +206,82 @@
     />
     <!-- Modal đặt vé -->
   </div>
+  <!-- đánh giá -->
+  <div class="container mt-7 border border-black p-4 rounded-lg">
+    <h4
+      class="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white md:text-5xl lg:text-6xl"
+    >
+      Phần đánh giá
+    </h4>
 
+    <loading :active="loadingFeedbacks" />
+    <div
+      v-if="feedbacks.length === 0 && !loadingFeedbacks"
+      class="text-center text-gray-500"
+    >
+      Chưa có đánh giá nào.
+    </div>
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div
+        v-for="feedback in feedbacks"
+        :key="feedback.fbId"
+        class="p-6 border rounded-lg shadow-md bg-gray-50"
+      >
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">
+          Đánh giá từ vé số: {{ feedback.ticketId }}
+        </h3>
+        <div class="flex items-center mb-2">
+          <span
+            class="text-yellow-500 mr-1"
+            v-for="i in feedback.fbRate"
+            :key="i"
+            >⭐</span
+          >
+          <span
+            class="text-gray-500"
+            v-for="i in 5 - feedback.fbRate"
+            :key="`empty-${i}`"
+            >☆</span
+          >
+        </div>
+
+        <p class="text-gray-700">
+          {{ feedback.fbContent }}
+        </p>
+        <p class="text-gray-600 text-sm mt-2">
+          Ngày đánh giá:
+          <span class="font-semibold">
+            {{ formatDate(feedback.fbCreateDate) }}
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div
+      v-if="totalFeedbackPages > 1"
+      class="flex justify-between items-center mt-6"
+    >
+      <button
+        @click="prevFeedbackPage"
+        :disabled="feedbackPage === 1"
+        class="px-4 py-2 bg-blue-500 text-gray-700 rounded-lg disabled:opacity-50"
+      >
+        Trang trước
+      </button>
+      <span class="text-gray-800 font-medium"
+        >Trang {{ feedbackPage }} / {{ totalFeedbackPages }}</span
+      >
+      <button
+        @click="nextFeedbackPage"
+        :disabled="feedbackPage === totalFeedbackPages"
+        class="px-4 py-2 bg-blue-500 text-gray-700 rounded-lg"
+      >
+        Trang sau
+      </button>
+    </div>
+  </div>
+  <!-- bài đăng -->
   <div class="container mt-7 border border-black p-4 rounded-lg">
     <h4
       class="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white md:text-5xl lg:text-6xl"
@@ -285,17 +368,26 @@ import { api } from "@/api/Api";
 import UpdateZoneModal from "@/views/EventView/UpdateZoneModal.vue";
 
 import { formatCurrency } from "@/composable/format";
+import Loading from "vue-loading-overlay";
+import "vue-loading-overlay/dist/css/index.css";
 export default {
   components: {
     Swiper,
     SwiperSlide,
     UpdateZoneModal,
+    Loading,
   },
   data() {
     return {
       blogs: [],
       currentPage: 0,
       totalPages: 1,
+
+      feedbacks: [],
+      loadingFeedbacks: false,
+      feedbackPage: 1,
+      feedbackSize: 10,
+      totalFeedbackPages: 1,
 
       isModalOpen: false,
       loading: true,
@@ -312,6 +404,7 @@ export default {
   async mounted() {
     await this.fetchEventData();
     await this.fetchBlogs();
+    await this.fetchFeedbacks();
   },
   methods: {
     goBlogDetail(blogId) {
@@ -363,6 +456,41 @@ export default {
         this.$toast.error(err.response?.data?.message || "Lỗi khi gửi blog");
       } finally {
         this.loading = false;
+      }
+    },
+    async fetchFeedbacks(page = 1) {
+      this.loadingFeedbacks = true;
+      this.error = null;
+      try {
+        const response = await api.get(
+          `/blogs/feedbacks/event/${this.eventId}?page=${page - 1}&size=${
+            this.feedbackSize
+          }`
+        );
+        this.feedbacks = response.data.data.content;
+        this.totalFeedbackPages = response.data.data.totalPages;
+      } catch (error) {
+        this.error =
+          error.response?.data?.message || "Failed to fetch feedbacks";
+        this.$toast.error(this.error);
+      } finally {
+        this.loadingFeedbacks = false;
+      }
+    },
+    formatDate(dateString) {
+      if (!dateString) return "Chưa xác định";
+      return new Date(dateString).toLocaleDateString();
+    },
+    prevFeedbackPage() {
+      if (this.feedbackPage > 1) {
+        this.feedbackPage--;
+        this.fetchFeedbacks(this.feedbackPage);
+      }
+    },
+    nextFeedbackPage() {
+      if (this.feedbackPage < this.totalFeedbackPages) {
+        this.feedbackPage++;
+        this.fetchFeedbacks(this.feedbackPage);
       }
     },
     formatCurrency,
@@ -435,7 +563,7 @@ export default {
         : "";
     },
     eventTags() {
-      return this.event?.eventTags?.split("_") || [];
+      return this.event?.eventTags?.split("|") || [];
     },
     totalRemainCapacity() {
       if (!this.event?.eventTicketCapacity) return 0;

@@ -26,7 +26,7 @@
             class="hover:text-blue-400"
             :to="isAdmin ? '/admin' : '/company'"
           >
-            {{ isAdmin ? "Quản Lý - ADMIN" : "Quản Lý" }}
+            {{ isAdmin ? "Quản Lý - ADMIN" : " Trang Quản Lý" }}
           </router-link>
         </li>
         <li v-if="!isAuthenticated">
@@ -46,7 +46,7 @@
         </li>
         <li>
           <router-link class="hover:text-blue-400" to="/about"
-            >About</router-link
+            >Giới Thiệu</router-link
           >
         </li>
         <li v-if="isAuthenticated">

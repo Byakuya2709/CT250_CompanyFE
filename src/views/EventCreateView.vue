@@ -416,15 +416,15 @@ export default {
     async handleSubmit() {
       this.loading = true;
       try {
-        const posterResponse = await this.uploadPoster();
+        const [posterResponse, imageResponse] = await Promise.all([
+          this.uploadPoster(),
+          this.uploadImages(),
+        ]);
+
         if (posterResponse.data.data.imageUrl) {
           this.event.eventListImgURL.push(posterResponse.data.data.imageUrl);
         }
-        const imageResponse = await this.uploadImages();
-        console.log("------");
-        console.log(imageResponse.data.data);
 
-        //
         const response = imageResponse.data.data;
 
         if (Array.isArray(response)) {
@@ -453,12 +453,15 @@ export default {
       const newEvent = {
         ...this.event, // Sao chép tất cả thuộc tính từ this.event
       };
+      delete newEvent.newArtistName;
+      delete newEvent.eventDurationType;
 
       try {
         const response = await api.post("/events", newEvent);
         console.log(response);
         this.$toast.success(response.data.message);
       } catch (error) {
+        console.log(error);
         this.$toast.error(error.response?.data?.message || "Đã xảy ra lỗi");
       } finally {
         this.loading = false;

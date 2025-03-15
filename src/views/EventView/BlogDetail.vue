@@ -177,6 +177,25 @@
       <!-- Bình luận -->
       <div class="mt-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-3">Bình luận</h2>
+
+        <div class="mt-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-3">
+            Thêm bình luận
+          </h2>
+          <textarea
+            v-model="newComment"
+            class="w-full p-2 border rounded-lg"
+            placeholder="Nhập bình luận của bạn..."
+          ></textarea>
+          <button
+            :disabled="!newComment.trim()"
+            @click="submitComment"
+            class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400"
+          >
+            Gửi bình luận
+          </button>
+        </div>
+
         <div
           v-for="comment in comments"
           :key="comment.cmtId"
@@ -195,18 +214,55 @@
               {{
                 userCache[comment.cmtUserId]?.userName || "Người dùng ẩn danh"
               }}
+              <span
+                v-if="comment.cmtUserId === blog.blogUserId"
+                class="text-red-500"
+              >
+                (Chủ blog)
+              </span>
             </p>
-            <p class="text-gray-800 text-sm">{{ comment.cmtContent }}</p>
-            <small class="text-gray-500 block mt-1">{{
-              new Date(comment.cmtCreateDate).toLocaleString()
-            }}</small>
+
+            <div v-if="editingCommentId === comment.cmtId">
+              <textarea
+                v-model="editedCommentContent"
+                class="w-full p-2 border rounded-lg"
+              ></textarea>
+              <div class="flex justify-end gap-2 mt-2">
+                <button
+                  @click="cancelEditComment"
+                  class="px-4 py-2 bg-gray-300 rounded"
+                >
+                  Hủy
+                </button>
+                <button
+                  @click="updateComment(comment)"
+                  class="px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                  Lưu
+                </button>
+              </div>
+            </div>
+            <div v-else>
+              <p class="text-gray-800 text-sm">{{ comment.cmtContent }}</p>
+              <small class="text-gray-500 block mt-1">{{
+                new Date(comment.cmtCreateDate).toLocaleString()
+              }}</small>
+            </div>
           </div>
-          <button
-            @click="deleteComment(comment.cmtId)"
-            class="text-red-500 text-sm hover:underline"
-          >
-            Xóa
-          </button>
+          <div v-if="editingCommentId !== comment.cmtId">
+            <button
+              @click="editComment(comment)"
+              class="text-blue-500 text-sm hover:underline"
+            >
+              Chỉnh sửa
+            </button>
+            <button
+              @click="deleteComment(comment.cmtId)"
+              class="text-red-500 text-sm hover:underline"
+            >
+              Xóa
+            </button>
+          </div>
         </div>
 
         <!-- Nút Xem thêm bình luận -->
@@ -297,6 +353,8 @@ button:hover {
 <script>
 import { api } from "@/api/Api";
 import Swal from "sweetalert2";
+import { Filter } from "bad-words";
+
 export default {
   data() {
     return {
@@ -313,8 +371,13 @@ export default {
       lastPage: false,
       userCache: {},
 
+      newComment: "",
+
       showImageViewer: false,
       currentImageIndex: 0,
+
+      editingCommentId: null,
+      editedCommentContent: "",
     };
   },
   computed: {
@@ -327,6 +390,98 @@ export default {
     },
   },
   methods: {
+    editComment(comment) {
+      this.editingCommentId = comment.cmtId;
+      this.editedCommentContent = comment.cmtContent;
+    },
+    cancelEditComment() {
+      this.editingCommentId = null;
+      this.editedCommentContent = "";
+    },
+    async updateComment(comment) {
+      try {
+        if (
+          comment.cmtContent.trim === this.editedCommentContent.trim() ||
+          !this.editedCommentContent.trim()
+        ) {
+          this.$toast.info("Nội dung bình luận không thay đổi.");
+          this.cancelEditComment();
+          return;
+        }
+
+        const filter = new Filter();
+        if (filter.isProfane(this.editedCommentContent)) {
+          this.$toast.warning("Bình luận chứa nội dung không phù hợp!");
+          this.cancelEditComment();
+          return;
+        }
+        const blogMasterId = this.$route.params.companyId;
+        const body = {
+          cmtContent: this.editedCommentContent,
+          userId: blogMasterId,
+        };
+
+        const response = await api.patch(
+          `/blogs/comment/${comment.cmtId}`,
+          body
+        );
+        const updatedComment = response.data.data;
+        const index = this.comments.findIndex((c) => c.cmtId === comment.cmtId);
+        if (index !== -1) {
+          this.comments.splice(index, 1, updatedComment);
+        }
+        this.$toast.success("Bình luận đã được cập nhật!");
+        this.cancelEditComment();
+      } catch (error) {
+        this.$toast.error(
+          error.response?.data?.message || "Lỗi khi cập nhật bình luận"
+        );
+        console.error("Lỗi khi cập nhật bình luận:", error);
+      }
+    },
+    async submitComment() {
+      if (!this.newComment.trim()) {
+        alert("Bình luận không được để trống!");
+        return;
+      }
+
+      const filter = new Filter();
+      if (filter.isProfane(this.newComment)) {
+        this.$toast.warning("Bình luận chứa nội dung không phù hợp!");
+        return;
+      }
+      this.loading = true;
+
+      const userId = this.$route.params.companyId;
+      try {
+        const body = {
+          cmtContent: this.newComment,
+          cmtEmotionsNumber: 0,
+          cmtUserId: userId,
+        };
+        // Gửi bình luận lên API
+        const response = await api.post(
+          `/blogs/${this.blog.blogId}/comment`,
+          body
+        );
+        const newCmt = response.data.data;
+
+        // // ✅ Thêm user vào cache nếu chưa có
+        // if (!this.userCache[this.userInfo.id]) {
+        //   this.userCache[this.userInfo.id] = this.userInfo;
+        // }
+
+        this.comments.unshift(newCmt); // Thêm vào danh sách bình luận
+        this.newComment = ""; // Reset ô nhập
+      } catch (error) {
+        this.$toast.error(
+          error.response?.data?.message || "Lỗi khi gửi bình luận"
+        );
+      } finally {
+        this.loading = false;
+      }
+    },
+
     openEditModal(blog) {
       this.editedBlog = { ...blog }; // Sao chép dữ liệu bài viết vào biến chỉnh sửa
       this.showEditModal = true;
@@ -455,11 +610,15 @@ export default {
       }
     },
     async fetchUserDetails(comments) {
+      const blogUserId = this.blog.blogUserId; // Lấy ID của chủ blog
+
       const userIdsToFetch = comments
         .map((comment) => comment.cmtUserId)
-        .filter((userId) => !this.userCache[userId]); // Chỉ lấy những user chưa có trong cache
+        .filter(
+          (userId) => userId !== blogUserId && !this.userCache[userId] // Bỏ qua chủ blog & user đã cache
+        );
 
-      if (userIdsToFetch.length === 0) return; // Nếu tất cả user đã có trong cache thì không gọi API
+      if (userIdsToFetch.length === 0) return;
 
       try {
         const userPromises = userIdsToFetch.map((userId) =>

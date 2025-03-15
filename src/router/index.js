@@ -152,6 +152,11 @@ const router = createRouter({
           component: () => import("../views/CompanyView/EventsFeedbacks.vue"),
         },
         {
+          path: ":companyId/submissions",
+          name: "SubmissionsManager",
+          component: () => import("../views/CompanyView/CompanySubmissionManager.vue"),
+        },
+        {
           path: "/company/:companyId/events/:eventId/update",
           name: "EventUpdate",
           component: () => import("../views/EventView/EventUpdate.vue"),

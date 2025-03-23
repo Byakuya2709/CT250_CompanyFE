@@ -56,7 +56,14 @@
           </button>
 
           <button
-            v-if="submission.subStatus !== 'PENDING'"
+            v-else-if="submission.subStatus !== 'PENDING'"
+            disabled
+            class="flex-grow bg-blue-500 text-white py-2 px-4 rounded-lg cursor-not-allowed"
+          >
+            {{ submission.subStatus }}
+          </button>
+          <button
+            v-else
             disabled
             class="flex-grow bg-yellow-500 text-white py-2 px-4 rounded-lg cursor-not-allowed"
           >

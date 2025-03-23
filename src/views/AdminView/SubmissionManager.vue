@@ -55,6 +55,13 @@
           >
             {{ submission.subStatus }}
           </button>
+          <button
+            v-if="submission.subStatus !== 'PENDING'"
+             @click="deleteSubmission(submission)"
+            class="flex-grow bg-red-500 text-white py-2 px-4 rounded-lg cursor-not-allowed"
+          >
+            Xóa
+          </button>
         </div>
       </div>
     </div>
@@ -135,6 +142,20 @@ export default {
   methods: {
     formatDate,
     formatCurrency,
+    async deleteSubmission(submission) {
+      try {
+        const res = await api.delete(
+          `/submissions/${submission.submissionId}`
+        );
+        this.$toast.success(res.data.message || "Đã Xóa Đơn!");
+        this.fetchSubmissions();
+      } catch (error) {
+        this.$toast.error(
+          error.response?.data?.message || "Error declined submission"
+        );
+        console.error(error);
+      }
+    },
     async fetchSubmissions() {
       try {
         const response = await api.get(

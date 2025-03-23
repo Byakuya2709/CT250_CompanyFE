@@ -66,23 +66,24 @@
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong
-                ><i class="fas fa-money-bill-wave text-success"></i>
-                Giá gốc:</strong
+                ><i class="fas fa-money-bill-wave text-success"></i> Giá
+                gốc:</strong
               >
-              <span class="fw-semibold text-success"
-                >{{ formatCurrency(event.eventPrice) }}</span
-              >
+              <span class="fw-semibold text-success">{{
+                formatCurrency(event.eventPrice)
+              }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong
-                ><i class="fas fa-map-marker-alt text-info"></i>
-                Địa chỉ tổ chức:</strong
+                ><i class="fas fa-map-marker-alt text-info"></i> Địa chỉ tổ
+                chức:</strong
               >
               <span>{{ event.eventAddress }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong
-                ><i class="fas fa-users text-primary"></i> Sức chứa (tối đa):</strong
+                ><i class="fas fa-users text-primary"></i> Sức chứa (tối
+                đa):</strong
               >
               <span class="fw-semibold text-primary"
                 >{{ event.eventCapacity }} người</span
@@ -90,14 +91,26 @@
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong
-                ><i class="fas fa-check-circle text-secondary"></i>
-                Trạng thái:</strong
+                ><i class="fas fa-check-circle text-secondary"></i> Trạng
+                thái:</strong
               >
               <span class="fw-bold">{{ event.eventStatus }}</span>
             </li>
           </ul>
-
         </div>
+        <p class="text-sm text-red-500 mb-4 mt-2">
+          Mọi thông tin sự kiện sẽ bị xóa vĩnh viễn khỏi hệ thống nếu chọn xóa
+          sự kiện này.
+        </p>
+        <button
+          v-if="
+            event.eventStatus !== 'UP_COMING'
+          "
+          class="btn btn-danger position-relative mt-2 mx-2"
+          @click="deleteEvent(event.eventId)"
+        >
+          <i class="fa-solid fa-trash"></i> Xóa Sự Kiện
+        </button>
       </div>
     </div>
 
@@ -116,7 +129,7 @@
     </div>
 
     <div class="event-tickets">
-      <hr>
+      <hr />
       <h3 class="text-2xl font-bold text-center mb-6">Đặt vé tại đây</h3>
       <div class="ticket-list">
         <div
@@ -128,70 +141,31 @@
             <strong>DAY {{ day }}</strong>
           </p>
           <p>Số lượng vé còn lại: {{ remainingCapacity }}</p>
-          <button
-            class="book-btn"
-            :disabled="!canPurchaseTicket"
-            @click="openModal({ day, remainingCapacity })"
-            :title="
-              !canPurchaseTicket
-                ? 'Vé chỉ được mua trong vòng 7 ngày trước khi sự kiện bắt đầu'
-                : ''
-            "
-          >
-            Đặt vé ngay
-          </button>
         </div>
         <div class="ticket-card">
           <p>
             <strong>FULL DAY</strong>
           </p>
           <p>Tổng: {{ event.totalDay }} ngày</p>
-          <button
-            class="book-btn"
-            :disabled="!canPurchaseTicket"
-            @click="openModalAllDay"
-            :title="
-              !canPurchaseTicket
-                ? 'Vé chỉ được mua trong vòng 7 ngày trước khi sự kiện bắt đầu'
-                : ''
-            "
-          >
-            Đặt vé toàn sự kiện
-          </button>
         </div>
       </div>
     </div>
+    
     <!-- Modal đặt vé -->
-    <EventBooking
-      v-if="showModal"
-      :event="event"
-      :day="selectedTicket"
-      @close="closeModal"
-    />
+
   </div>
-  <EventBookingAllDay
-    v-if="showModalAllDay"
-    :event="event"
-    :day="string"
-    @close="closeModal"
-  />
 </template>
 
 <script>
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/swiper-bundle.css";
 import { api } from "@/api/Api";
-import EventBooking from "@/views/EventView/EventBooking.vue";
-import EventBookingAllDay from "@/views/EventView/EventBookingAllDay.vue";
-import UpdateZoneModal from "@/views/EventView/UpdateZoneModal.vue";
-
-import {formatCurrency } from "@/composable/format"
+import Swal from "sweetalert2";
+import { formatCurrency } from "@/composable/format";
 export default {
   components: {
     Swiper,
     SwiperSlide,
-    EventBooking,
-    EventBookingAllDay,
   },
   data() {
     return {
@@ -241,6 +215,32 @@ export default {
     },
   },
   methods: {
+    async deleteEvent(eventId) {
+      const result = await Swal.fire({
+        title: "Xác nhận xóa?",
+        text: "Bạn có chắc chắn muốn xóa hoàn toàn sự kiện này không?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Xóa",
+        cancelButtonText: "Hủy",
+      });
+      const companyId = this.event.eventCompanyId;
+      if (result.isConfirmed) {
+        api
+          .delete(`/events/${eventId}`)
+          .then(() => {
+            this.$toast.success("Xóa sự kiện thành công");
+            setTimeout(() => {
+              this.$router.push(`/company/${companyId}/events`);
+            }, 1000);
+          })
+          .catch((error) => {
+            this.$toast.error(
+              error.response?.data?.message || "Lỗi khi xóa sự kiện"
+            );
+          });
+      }
+    },
     formatCurrency,
     async fetchEventData() {
       this.loading = true;

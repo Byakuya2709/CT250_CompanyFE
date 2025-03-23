@@ -254,13 +254,13 @@
               @click="editComment(comment)"
               class="text-blue-500 text-sm hover:underline"
             >
-              Chỉnh sửa
+            <i class="fa-solid fa-pen"></i>
             </button>
             <button
               @click="deleteComment(comment.cmtId)"
               class="text-red-500 text-sm hover:underline"
             >
-              Xóa
+            <i class="fa-solid fa-trash"></i>
             </button>
           </div>
         </div>

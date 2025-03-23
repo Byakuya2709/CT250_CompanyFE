@@ -23,7 +23,7 @@ const router = createRouter({
     {
       path: "/event/:eventId",
       name: "PublicEvent",
-      component: () => import("../views/EventView/EventDetail.vue"),
+      component: () => import("../views/EventView/PublicEventDetail.vue"),
       meta: { requiresAuth: false },
     },
     {
@@ -105,8 +105,9 @@ const router = createRouter({
       children: [
 
         {
-          path: "profile",
+          path: "",
           name: "Profile",
+          alias: ['profile'],
           component: () => import("@/views/CompanyView/CompanyProfile.vue"),
           props: (route) => ({ userInfo: route.meta.userInfo }),
         },

@@ -7,11 +7,11 @@
         Nền tảng đặt vé sự kiện hàng đầu giúp bạn trải nghiệm những khoảnh khắc
         tuyệt vời nhất!
       </p>
-      <div class="mt-6">
+      <!-- <div class="mt-6">
         <router-link to="/events" class="bg-pink-600 px-6 py-3 rounded-full">
           Xem Sự Kiện
         </router-link>
-      </div>
+      </div> -->
     </section>
   </div>
 

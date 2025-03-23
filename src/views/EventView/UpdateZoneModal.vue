@@ -9,7 +9,7 @@
           <thead>
             <tr>
               <th>Khu Vực</th>
-              <th>Tỉ giá (%)</th>
+              <th>Tỉ giá x 100 (%)</th>
               <th>Số lượng vé</th>
             </tr>
           </thead>

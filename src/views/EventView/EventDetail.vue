@@ -108,9 +108,10 @@
                 : ''
             "
           >
-            Cập nhật Gía vé
+            Cập nhật Giá vé
           </button>
           <router-link
+            v-if="event.eventStatus === 'UP_COMMING'"
             :to="{
               name: 'EventUpdate',
               params: {
@@ -118,7 +119,7 @@
                 companyId: event.eventCompanyId,
               },
             }"
-            class="btn btn-primary position-relative mt-2 mx-2"
+            class="btn btn-danger position-relative mt-2 mx-2"
             :class="{ disabled: !canUpdateZone }"
             v-tooltip="
               !canUpdateZone
@@ -126,10 +127,33 @@
                 : ''
             "
           >
-            <i class="fas fa-edit"></i> Cập nhật Sự Kiện
+            <i class="fas fa-edit"></i> Gửi đơn xét duyệt
           </router-link>
+
+          <button
+            v-if="
+              (event.eventStatus === 'AWAITING_APPROVAL' ||
+                event.eventStatus === 'CANCELLED') &&
+              canUpdateZone
+            "
+            class="btn btn-danger position-relative mt-2 mx-2"
+            :class="{ disabled: !canUpdateZone }"
+            v-tooltip="
+              !canUpdateZone
+                ? 'Chỉ được cập nhật trước 7 ngày trước khi sự kiện bắt đầu'
+                : ''
+            "
+            @click="deleteEvent(event.eventId)"
+          >
+            <i class="fa-solid fa-trash"></i> Xóa Sự Kiện
+          </button>
+
           <p class="text-sm text-red-500 mb-4 mt-2">
             *Chỉ có thể cập nhật sự kiện trước 7 ngày trước khi sự kiện bắt đầu
+            <br />
+            *Chỉ có thể xóa sự kiện trước 7 ngày trước khi sự kiện bắt đầu hoặc
+            sự kiện đã kết thúc hoặc đã hủy (Mọi thông tin sự kiện sẽ bị xóa
+            vĩnh viễn bao gồm vé)
           </p>
         </div>
       </div>
@@ -370,6 +394,7 @@ import UpdateZoneModal from "@/views/EventView/UpdateZoneModal.vue";
 import { formatCurrency } from "@/composable/format";
 import Loading from "vue-loading-overlay";
 import "vue-loading-overlay/dist/css/index.css";
+import Swal from "sweetalert2";
 export default {
   components: {
     Swiper,
@@ -411,6 +436,32 @@ export default {
       this.$router.push(
         `/company/${this.event.eventCompanyId}/events/${this.event.eventId}/blogs/${blogId}`
       );
+    },
+    async deleteEvent(eventId) {
+      const result = await Swal.fire({
+        title: "Xác nhận xóa?",
+        text: "Bạn có chắc chắn muốn xóa hoàn toàn sự kiện này không?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Xóa",
+        cancelButtonText: "Hủy",
+      });
+      const companyId = this.event.eventCompanyId;
+      if (result.isConfirmed) {
+        api
+          .delete(`/events/${eventId}`)
+          .then(() => {
+            this.$toast.success("Xóa sự kiện thành công");
+            setTimeout(() => {
+              this.$router.push(`/company/${companyId}/events`);
+            }, 1000);
+          })
+          .catch((error) => {
+            this.$toast.error(
+              error.response?.data?.message || "Lỗi khi xóa sự kiện"
+            );
+          });
+      }
     },
     async likeBlog(blogId) {
       try {
